@@ -1,6 +1,8 @@
 # minecraft_sheep
 You need a bunch of wool for your minecraft building project. You are setting up a pasture where you can raise sheep and collect their wool. Should you pack the pasture as densely as possible to fit in the most sheep? Well, probably not. Minecraft sheep, once sheared, will only regrow their wool when they eat grass. If the pasture is full, the sheep will eat all the grass and they won't be able to grow any more wool. But if you don't put enough sheep in the pasture, you're missing out on a bunch of wool you could be gathering. So clearly there is some happy medium amount of sheep to put in your pasture to get the most efficiency. The purpose of this project is to determine, using simulations and a bit of experimental work, the most efficient density with which to pack your pasture.
 
+*This investigation was conducted in minecraft version 1.19.4.*
+
 ## Key assumptions
 There are a couple key assumptions being made here:
 - Grass growth is a simple process in which all dirt blocks have an equal chance to turn into a grass block on a tick. This is not entirely realistic, since grass growth is contingent on spreading from an adjacent block, but as long as dirt blocks consistently have adjacent grass blocks it should work.
@@ -56,13 +58,23 @@ $D=\frac{k}{2R}$
 
 According to the assumptions we've made, this is the sheep population density that will produce the maximum rate of grass growth. It's important to note that if we plug this back into our expression for equilibrium grass cover, we get G = 0.5. This should make sense - the derivative of the logistic function is maximum when f(x) = 0.5.
 
-## Theory only gets you so far
-### Parameter measurements
+## Experimental Work
 Now what? It seems like we have the answer we wanted, but what about k and R? we need to know the actual rate at which sheep eat, and the rate at which grass grows.
 
 The user-maintained minecraft wiki says that sheep have a 1/1000 chance of attempting to eat on every other tick (a tick being 1/20 of a second). With ten chances per second at a probability of 1/1000, the expected value is 0.001. So we can estimate that R=0.001. However, this is based on data from a user-operated wiki with no citation standards and questionable accountability. So we will be conducting an in-game experiment to determine R.
 
 The grass mechanics are sufficiently complicated that it will also be easier for us to set up an experiment in-game to estimate the logistic growth parameters.
 
-### Simulations
+### Sheep eating experiment
+Determining R is not terribly difficult. We can simply set a timer and count how many times a sheep eats within that time.
+
+Counting the number of times the sheep eats is done as follows. The sheep is put in a 1x1 block enclosure, standing on a grass block. Facing the grass block is an observer. The observer is connected to a dropper, full of items and facing a chest. When the sheep eats the grass, it turns into dirt, activating the observer and causing an item to be placed in the chest. The number of times the sheep eats is counted by the number of items in the chest.
+
+The observer is also connected to a command block, which is set to place a grass block under the sheep using `/setblock`. When the sheep eats the grass block, turning it into dirt, the command block will immediately replace the dirt with another grass block, ensuring that the sheep is always standing on grass.
+
+Ten of these sheep cells were allowed to run for 1 hour. The experiment was started and stopped using command blocks to `/summon` and `/kill` sheep in all cells simultaneously.
+
+In one hour, the sheep consumed **320** blocks of grass.
+
+## Simulations
 Finally, to validate all this math and get some actual insight into the sheep and their activities, we will be constructing first-principles simulations of grazing sheep.
