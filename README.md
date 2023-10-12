@@ -61,7 +61,7 @@ According to the assumptions we've made, this is the sheep population density th
 ## Experimental Work
 Now what? It seems like we have the answer we wanted, but what about k and R? we need to know the actual rate at which sheep eat, and the rate at which grass grows.
 
-The user-maintained minecraft wiki says that sheep have a 1/1000 chance of attempting to eat on every other tick (a tick being 1/20 of a second). With ten chances per second at a probability of 1/1000, the expected value is 0.001. So we can estimate that R=0.001. However, this is based on data from a user-operated wiki with no citation standards and questionable accountability. So we will be conducting an in-game experiment to determine R.
+The user-maintained minecraft wiki says that sheep have a 1/1000 chance of attempting to eat on every other tick (a tick being 1/20 of a second). With ten chances per second at a probability of 1/1000, the expected value is 0.01. So we can estimate that R=0.01. However, this is based on data from a user-operated wiki with no citation standards and questionable accountability. So we will be conducting an in-game experiment to determine R.
 
 The grass mechanics are sufficiently complicated that it will also be easier for us to set up an experiment in-game to estimate the logistic growth parameters.
 
@@ -74,7 +74,13 @@ The observer is also connected to a command block, which is set to place a grass
 
 Ten of these sheep cells were allowed to run for 1 hour. The experiment was started and stopped using command blocks to `/summon` and `/kill` sheep in all cells simultaneously.
 
-In one hour, the sheep consumed **320** blocks of grass.
+In one hour, the sheep consumed **320** blocks of grass. This gives an R value of 0.00888 m<sup>2</sup>s<sup>-1</sup>.
+
+### Grass growth experiment
+
+Determining k is a little more complicated than R. The idea with this experiment is to begin with a large area of dirt with uniformly distributed grass blocks, and allow it to spread while recording the grass cover at regular intervals.
+
+The experiment was set up as follows. A 30x30 flat plot of dirt, isolated from any other nearby dirt and grass blocks, was partially covered in grass in this pattern:
 
 ## Simulations
 Finally, to validate all this math and get some actual insight into the sheep and their activities, we will be constructing first-principles simulations of grazing sheep.
