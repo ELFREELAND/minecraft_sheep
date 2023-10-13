@@ -3,20 +3,21 @@ You need a bunch of wool for your minecraft building project. You are setting up
 
 *This investigation was conducted in minecraft version 1.19.4.*
 
-## Key assumptions
+## Key assumptions and notes
 There are a couple key assumptions being made here:
 - Grass growth is a simple process in which all dirt blocks have an equal chance to turn into a grass block on a tick. This is not entirely realistic, since grass growth is contingent on spreading from an adjacent block, but as long as dirt blocks consistently have adjacent grass blocks it should work.
 - The goal is to have the greatest rate of sheep regenerating their wool. I am ignoring the fact that sheep only regenerate wool if they don't already have any. So really the goal is to have the greatest rate of sheep eating grass.
+- Another important thing to note is that pastures can be discussed in terms of *blocks* or *area*. One block is canonically one square meter, So pasture size has units of area. However, area in minecraft is discretized, i.e. you cannot have fractional area. For this reason, pasture area will be discussed using the term *blocks*, but using units of m<sup>2</sup>.
 
 ## Math
 ### The sheep
 We can find a mathematical expression for the rate at which sheep eat grass.
 
-On any given tick, sheep have a chance to attempt to eat 1 square meter of grass. We can assume that the rate of a single sheep attempting to eat is constant. We'll call this R \[m<sup>2</sup>s<sup>-1</sup>].
+On any given tick, sheep have a chance to attempt to eat 1 block of grass. We can assume that the rate of a single sheep attempting to eat is constant. We'll call this R \[m<sup>2</sup>s<sup>-1</sup>].
 
 The rate at which a flock of sheep attempts to eat is R times the number of sheep. We'll call the number of sheep N \[unitless]. So the rate of the flock attempting to eat is NR \[m<sup>2</sup>s<sup>-1</sup>].
 
-The rate at which the flock *succeeds* in eating is dependent on what fraction of the flock is standing on grass. If the sheep are uniformly distributed, the fraction of the flock standing on grass is equal to the fraction of the pasture that is grassy. Let's call the fraction of grass cover G \[unitless]. So the actual rate at which the flock eats is NRG. 
+The rate at which the flock *succeeds* in eating is dependent on what fraction of the flock is standing on grass. If the sheep and grass are uniformly distributed, the fraction of the flock standing on grass is equal to the fraction of the pasture that is grassy. Let's call the fraction of grass cover G \[unitless]. So the actual rate at which the flock eats is NRG. 
 
 ### The grass
 The rate at which grass grows is a little complicated. If there is barely any grass, then grass growth will be limited by the lack of places the grass can spread *from*. If there is barely any dirt, grass growth will be limited by a lack of places for the grass to spread *to*. This can be modelled by the logistic function. This is a function with a special derivative:
@@ -42,7 +43,7 @@ This expression is important because it gives us the equilibrium grass cover as 
 
 $G=1-\frac{NR}{Ak}$
 
-We'll introduce the sheep population density, D \[m<sup>-2</sup>] as the number of sheep divided by the pasture area. This gives
+We'll introduce the sheep population density, D \[m<sup>-2</sup>] as the number of sheep divided by the pasture size. This gives
 
 $G = 1 - \frac{DR}{k}$
 
@@ -50,7 +51,7 @@ Plugging this into our logistic model for grass growth gives
 
 $G' = DR - \frac{D^2R^2}{k}$
 
-This is what we've been looking for - the steady-state grass growth rate as a function of sheep population density. This is also equal to the rate at which the sheep are eating the grass. We can find the maximum by differentiating with respect to D:
+This is what we've been looking for - the steady-state grass growth rate as a function of sheep population density. This is also equal to the rate at which the sheep are eating the grass. We can find the maximum by differentiating with respect to D, setting the derivative to 0 and solving for D:
 
 $\frac{dG'}{dD}=R-\frac{2DR^2}{k}=0$
 
