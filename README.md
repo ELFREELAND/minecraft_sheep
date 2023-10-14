@@ -6,7 +6,7 @@ You need a bunch of wool for your minecraft building project. You are setting up
 ## Key assumptions and notes
 There are a couple key assumptions being made here:
 - Grass growth is a simple process in which all dirt blocks have an equal chance to turn into a grass block on a tick. This is not entirely realistic, since grass growth is contingent on spreading from an adjacent block, but as long as dirt blocks consistently have adjacent grass blocks it should work.
-- The goal is to have the greatest rate of sheep regenerating their wool. I am ignoring the fact that sheep only regenerate wool if they don't already have any. So really the goal is to have the greatest rate of sheep eating grass.
+- The goal is to have the greatest rate of sheep regenerating their wool. We will ignore the fact that sheep only regenerate wool if they don't already have any. So really the goal is to have the greatest rate of sheep eating grass.
 - Another important thing to note is that pastures can be discussed in terms of *blocks* or *area*. One block is canonically one square meter, So pasture size has units of area. However, area in minecraft is discretized, i.e. you cannot have fractional area. For this reason, pasture area will be discussed using the term *blocks*, but using units of m<sup>2</sup>.
 
 ## Math
@@ -30,12 +30,12 @@ Putting this all together
 
 $G'=kG(1-G)$
 
-If we multiply by A, we can express the rate of change of the total grass area: 
+Let's define the pasture size A \[m<sup>2</sup>]. If we multiply the above equation by A, we can express the rate of change of the total grass area: 
 
 $AG'= kAG(1-G)$
 
 ### Putting it together
-But wait - G' is also affected by the flock eating the grass. After the flock has been munching for a while, the rate at which the flock is eating should be equal to NRG. This is equal to AG', the rate at which grass is regrowing. Setting our two expressions equal to each other, we can say that at steady state,
+But wait - G' is also affected by the flock eating the grass. After the flock has been munching for a while, the rate at which the flock is eating should be equal to the rate at which grass is regrowing. Setting our two expressions equal to each other, we can say that at steady state,
 
 $NRG=kAG(1-G)$
 
