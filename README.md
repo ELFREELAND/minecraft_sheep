@@ -6,7 +6,7 @@ You need a bunch of wool for your minecraft building project. You are setting up
 ## Key assumptions and notes
 There are a couple key assumptions being made here:
 - Grass growth is a simple process in which all dirt blocks have an equal chance to turn into a grass block on a tick. This is not entirely realistic, since grass growth is contingent on spreading from an adjacent block, but as long as dirt blocks consistently have adjacent grass blocks it should work.
-- The goal is to have the greatest rate of sheep regenerating their wool. We will ignore the fact that sheep only regenerate wool if they don't already have any. So really the goal is to have the greatest rate of sheep eating grass.
+-  The actual rate at which the farm produces wool is limited by the rate at which the farmer shears the sheep. Initially, we will assume the farmer is infinitely fast, so really the goal is to have the greatest rate of sheep eating grass. Later, we will look at the mechanics of a farm where the farmer harvests the wool at regular intervals.
 - Another important thing to note is that pastures can be discussed in terms of *blocks* or *area*. One block is canonically one square meter, So pasture size has units of area. However, area in minecraft is discretized, i.e. you cannot have fractional area. For this reason, pasture area will be discussed using the term *blocks*, but using units of m<sup>2</sup>.
 
 ## Math
@@ -34,7 +34,7 @@ Let's define the pasture size A \[m<sup>2</sup>]. If we multiply the above equat
 
 $AG'= kAG(1-G)$
 
-### Putting it together
+### The infinitely fast farmer
 But wait - G' is also affected by the flock eating the grass. After the flock has been munching for a while, the rate at which the flock is eating should be equal to the rate at which grass is regrowing. Setting our two expressions equal to each other, we can say that at steady state,
 
 $NRG=kAG(1-G)$
@@ -58,6 +58,10 @@ $\frac{dG'}{dD}=R-\frac{2DR^2}{k}=0$
 $D=\frac{k}{2R}$
 
 According to the assumptions we've made, this is the sheep population density that will produce the maximum rate of grass growth. It's important to note that if we plug this back into our expression for equilibrium grass cover, we get G = 0.5. This should make sense - the derivative of the logistic function is maximum when f(x) = 0.5.
+
+### The realistically slow farmer
+
+
 
 ## Experimental Work
 Now what? It seems like we have the answer we wanted, but what about k and R? we need to know the actual rate at which sheep eat, and the rate at which grass grows.
