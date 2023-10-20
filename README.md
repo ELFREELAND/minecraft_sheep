@@ -94,9 +94,9 @@ So when the farmer comes back to shear the sheep at $t=T$, they will get $N-Ne^{
 
 $$F_{slow}=\frac{N\left(1-e^{-TRg}\right)}{T}$$
 
-Finally, we can plug (2):
+Finally, we can plug (2) for g:
 
-$${F_{slow}=\frac{N\left(1-e^{-TR\left(1-\frac{NR}{Ak}\right)}\right)}{T}}\tag{5}$$
+$${F_{slow}=\frac{N\left(1-e^{-TR+\frac{TR^2N}{Ak}}\right)}{T}}\tag{5}$$
 
 This is the expression for the rate of wool gathering by a slow farmer. The optimal density of sheep is now dependent on T. We can employ the following approximation, for small $x$:
 
@@ -106,9 +106,23 @@ to see that for small values of $T$, $F_{slow}\approx F_{fast}$:
 
 $$F_{slow}\approx NR-\frac{N^2R^2}{Ak}$$
 
-To find the optimal sheep population, we can differentiate (5) with respect to $N$ as before:
+To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (5) w.r.t. $N$:
 
-$$\frac{dF}{dN}$$
+$$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)e^{-TR+\frac{TR^2N}{Ak}}}{T}=0$$
+
+Attempting to solve for $N$ leads to
+
+$$\frac{TR^2N}{Ak}e^{\frac{TR^2N}{Ak}}=e^{TR}$$
+
+At this point we must invoke the lambert $W$ function, a nonelementary function satisfying
+
+$$W(x)e^{W(x)}=x$$
+
+applying this leads to
+
+$$W(e^{TR})=\frac{TR^2N}{Ak}$$
+
+$${N=\frac{Ak}{RT^2}W(e^{TR})}\tag{6}$$
 
 ## Experimental Work
 Now what? It seems like we have the answer we wanted, but what about k and R? we need to know the actual rate at which sheep eat, and the rate at which grass grows.
