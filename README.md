@@ -54,7 +54,7 @@ This is important - the steady-state grass growth rate as a function of sheep po
 
 If the farmer is shearing sheep as quickly as they get their wool, they are getting 1 block of wool for every block of grass the sheep eat. Let's define $F$ \[s<sup>-1</sup>] as the rate at which the farmer gathers wool.
 
-$${F_{fast}=Ag'=\left(NR - \frac{N^2R^2}{Ak}\right)}\tag{4}$$
+$${F_{fast}=Ag'=NR - \frac{N^2R^2}{Ak}}\tag{4}$$
 
 We can find the maximum by differentiating (4) with respect to $N$, setting the derivative to 0 and solving for $N$:
 
@@ -62,7 +62,11 @@ $$\frac{dF}{dN}=R-\frac{2NR^2}{Ak}=0$$
 
 $${N=\frac{Ak}{2R}}\tag{4}$$
 
-According to the assumptions we've made, this is the sheep population that will produce the maximum rate of grass growth. It's important to note that if we plug this back into our expression for equilibrium grass cover, we get $g = 0.5$. This should make sense - the derivative of the logistic function is maximum when $f(x) = 0.5$.
+According to the assumptions we've made, this is the sheep population that will produce the maximum rate of grass growth. At this population,
+
+$${F_{fast}=\frac{Ak}{4}}$$
+
+It's important to note that if we plug (4) back into (2), our expression for equilibrium grass cover, we get $g = 0.5$. This should make sense - the derivative of the logistic function is maximum when $f(x) = 0.5$.
 
 ### The realistically slow farmer
 
@@ -122,7 +126,11 @@ applying this leads to
 
 $$W(e^{TR})=\frac{TR^2N}{Ak}$$
 
-$${N=\frac{Ak}{RT^2}W(e^{TR})}\tag{6}$$
+$${N=\frac{Ak}{TR^2}W(e^{TR})}\tag{6}$$
+
+Plugging this back into the (5), we get
+
+$$F_{slow}=\frac{AkW(e^{TR})(1-e^{-TR+W(e^{TR})})}{RT^3}$$
 
 ## Experimental Work
 Now what? It seems like we have the answer we wanted, but what about k and R? we need to know the actual rate at which sheep eat, and the rate at which grass grows.
