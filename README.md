@@ -3,6 +3,10 @@ You need a bunch of wool for your minecraft building project. You are setting up
 
 *This investigation was conducted in minecraft version 1.19.4.*
 
+## Minecraft background
+
+*Minecraft* is an open-world sandbox video game. The game takes place in a procedurally generated world made of cubic voxels, or *blocks*. The game has no goal, the player can explore wilderness, 
+
 ## Key assumptions and notes
 There are a couple key assumptions being made here:
 - Grass growth is a simple process in which all dirt blocks have an equal chance to turn into a grass block on a tick. This is not entirely realistic, since grass growth is contingent on spreading from an adjacent block, but as long as dirt blocks consistently have adjacent grass blocks it should work.
@@ -42,6 +46,8 @@ After the flock has been munching for a while, the rate at which the flock is ea
 
 $$NRg=Ag'=kAg(1-g)$$
 
+
+
 This expression is important because it gives us the equilibrium grass cover as a function of sheep population - a little algebra gives 
 
 $${g=1-\frac{NR}{Ak}}\tag{2}$$
@@ -68,6 +74,10 @@ $${F_{fast}=\frac{Ak}{4}}$$
 
 It's important to note that if we plug (4) back into (2), our expression for equilibrium grass cover, we get $g = 0.5$. This should make sense - the derivative of the logistic function is maximum when $f(x) = 0.5$.
 
+Let's also note that there is a certain population of sheep at which all the grass will be eaten:
+
+$$N=\frac{Ak}{R}$$
+
 ### The realistically slow farmer
 
 For the case of the infinitely fast farmer, the rate at which wool is harvested is the same as the rate at which the sheep are eating. To account for the farmer being slow, we'll need to think a bit more.
@@ -80,7 +90,7 @@ Now we need to consider the value of $w$. A sheep will only regrow wool upon eat
 
 $$\frac{dw}{dt}=\frac{N-w}{N}NRg=(N-w)Rg$$
 
-At time $t=0$, the farmer shears all the sheep, leaving them with $w=0$, and then at time $t=T$, the farmer comes back and shears them again, gathering $w$ blocks of wool. How many sheep grew their wool back in time $T$ \[s]? We can find out by solving the above equation for $w$. We'll separate it into $w$ terms and non-$w$ terms:
+At time $t=0$, the farmer shears all the sheep, leaving them with $w=0$, and then at time $t=T$, the farmer comes back and shears them again, gathering $w$ blocks of wool. How many sheep grew their wool back in time $T$ \[s]? We can find out by solving the above equation for $w$. We'll separate it into $w$ terms and non $w$ terms:
 
 $$\frac{1}{N-w}dw=(Rg)dt$$
 
@@ -108,7 +118,7 @@ $$e^x-1\approx x$$
 
 to see that for small values of $T$, $F_{slow}\approx F_{fast}$:
 
-$$F_{slow}\approx NR-\frac{N^2R^2}{Ak}$$
+$$F_{slow}\approx NR-\frac{N^2R^2}{Ak}=F_{fast}$$
 
 To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (5) w.r.t. $N$:
 
@@ -116,7 +126,7 @@ $$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)e^{-TR+\frac{TR^2N}{Ak}}}
 
 Attempting to solve for $N$ leads to
 
-$$\frac{TR^2N}{Ak}e^{\frac{TR^2N}{Ak}}=e^{TR}$$
+$$\left(\frac{TR^2N}{Ak}+1\right)e^{\frac{TR^2N}{Ak}+1}=e^{TR+1}$$
 
 At this point we must invoke the lambert $W$ function, a nonelementary function satisfying
 
@@ -124,13 +134,15 @@ $$W(x)e^{W(x)}=x$$
 
 applying this leads to
 
-$$W(e^{TR})=\frac{TR^2N}{Ak}$$
+$$W(e^{TR+1})=\frac{TR^2N}{Ak}+1$$
 
-$${N=\frac{Ak}{TR^2}W(e^{TR})}\tag{6}$$
+$$N=\frac{Ak}{TR^2}(W(e^{TR+1})-1)$$
 
 Plugging this back into the (5), we get
 
-$$F_{slow}=\frac{AkW(e^{TR})(1-e^{-TR+W(e^{TR})})}{RT^3}$$
+$$F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}$$
+
+-f_slow looks linear w.r.t. N for low values of N and high values of T?
 
 ## Experimental Work
 Now what? It seems like we have the answer we wanted, but what about k and R? we need to know the actual rate at which sheep eat, and the rate at which grass grows.
