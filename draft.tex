@@ -12,13 +12,13 @@ valarante child game.... look to cartoon grapfix to make kid player happy like c
 
 \section{Introduction}
 
-\textit{Minecraft} is an open-world sandbox video game. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared sheared to gather wool, and require grass to eat to regrow their wool after shearing.
+\textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in Minecraft version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared sheared to gather wool, and require grass to eat to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
 
-Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will produce the maximum possible amount of wool.
+\subsection{Deterministic vs. Stochastic}
+Shortly, we will seek a model for the population of grass in a pasture. The growth and consumption of grass is a stochastic process, like everything else in \textit{Minecraft}, and also like population evolution in the real world. Early population models were deterministic, but more sophisticated and useful models are stochastic, incorporating the uncertainty inherent in population size. This paper will take the deterministic approach, owing to its simplicity\footnote{And the author's modest mathematical background.}.
 
-\hfill \break
-\noindent \textit{This investigation was conducted in Minecraft version 1.19.4.}
-
+\subsection{A brief tangent about units}
+Canonically, one block is one cubic meter. 
 \section{Key assumptions and notes}
 
 There are a couple key assumptions being made here:
