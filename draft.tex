@@ -1,6 +1,7 @@
 \documentclass{article}
 \title{Minecraft Sheep}
 \author{Evan Freeland}
+\usepackage{graphicx}
 \date{\today}
 
 \begin{document}
@@ -28,56 +29,48 @@ There are a couple key assumptions being made here:
 \item Another important thing to note is that pastures can be discussed in terms of \textit{blocks} or \textit{area}. One block is canonically one square meter, So pasture size has units of area. However, area in minecraft is discretized, i.e. you cannot have fractional area. For this reason, pasture area will be discussed using the unitless quantity \textit{blocks}.
 \end{itemize}
 
-\section{Math}
-\subsection{The sheep}
-We can find a mathematical expression for the rate at which sheep eat grass.
+\section{Model}
+\subsection{Grass consumption by sheep}
+Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to eat will only succeed if it is standing on a grass block. A pasture containing $N$ [unitless] sheep, whose surface is covered in grass with fraction $X_g$ [unitless], will lose grass at a rate $NRX_g$ [s\textsuperscript{-1}] as it is eaten by sheep.
 
-On any given tick, sheep have a chance to attempt to eat 1 block of grass. We can assume that the rate of a single sheep attempting to eat is constant. We'll call this $R$ [s\textsuperscript{-1}].
+This assumes that the sheep are distributed uniformly so that the probability of any sheep standing on a grass block is equal to the grass cover of the pasture.
 
-The rate at which a flock of sheep attempts to eat is R times the number of sheep. We'll call the number of sheep $N$ [unitless]. So the rate of the flock attempting to eat is $NR$.
+\subsection{Grass growth}
+The rate at which grass grows is a little complicated. If $X_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $X_g$ is close to 1, grass growth will be limited by a lack of places for the grass to spread \textit{to}. We will employ a logistic model:
 
-The rate at which the flock \textit{succeeds} in eating is dependent on what fraction of the flock is standing on grass. If the sheep and grass are uniformly distributed, the fraction of the flock standing on grass is equal to the fraction of the pasture that is grassy. Let's call the fraction of grass cover $g$ [unitless]. So the actual rate at which the flock eats is $NRg$.
+$$\dot{X_g}=kX_g(1-X_g)$$
 
-\subsection{The grass}
-The rate at which grass grows is a little complicated. If there is barely any grass, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If there is barely any dirt, grass growth will be limited by a lack of places for the grass to spread \textit{to}. This can be modelled by the logistic function. This is a function with a special derivative:
-
-$$f'(x)=kf(x)(1-f(x))$$
-
-If $f(x)$ is small, $f'(x)$ will also be small, because there is a lack of grass to spread. If $f(x)$ is close to 1, then $f'(x)$ will be small because there is a lack of places for the grass to spread to. In our case, $f(x)$ is the fraction of the pasture that is grassy, i.e. $g$. We also have a constant, k [s\textsuperscript{-1}], which represents the rate at which grass attempts to spread.
-
-Putting this all together
-
-$$g'=kg(1-g)$$
+k [s\textsuperscript{-1}] is a constant which represents the rate at which grass attempts to spread.
 
 Let's define the pasture size $A$ [unitless]. If we multiply the above equation by $A$, we can express the rate of change of the total grass area:
 
-$$Ag'= kAg(1-g)$$
+$$A\dot{X_g}=kAX_g(1-X_g)$$
 
-\subsection{Putting it together}
+\subsection{The fast farmer}
 
 We can now create an expression for the rate at which the sheep are eating.
 
 After the flock has been munching for a while, the rate at which the flock is eating should be equal to the rate at which grass is regrowing. Setting our two expressions equal to each other, we can say that at steady state,
 
-$$NRg=Ag'=kAg(1-g)$$
+$$NRX_g=A\dot{X_g}=kAX_g(1-X_g)$$
 
 This expression is important because it gives us the equilibrium grass cover as a function of sheep population - a little algebra gives 
 
-$$g=1-\frac{NR}{Ak}$$
+$$X_g=1-\frac{NR}{Ak}$$
 
 Plugging this into our logistic model for grass growth (1) gives
 
-$$Ag' = NR - \frac{N^2R^2}{Ak}$$
+$$A\dot{X_g} = NR - \frac{N^2R^2}{Ak}$$
 
 This is important - the steady-state grass growth rate as a function of sheep population. This is also equal to the rate at which the sheep are eating the grass.
 
 If the farmer is shearing sheep as quickly as they get their wool, they are getting 1 block of wool for every block of grass the sheep eat. Let's define $F$ [s\textsuperscript{-1}] as the rate at which the farmer gathers wool.
 
-$$F_{fast}=Ag'=NR - \frac{N^2R^2}{Ak}$$
+$$F_{fast}=A\dot{X_g}=NR - \frac{N^2R^2}{Ak}$$
 
 We can find the maximum by differentiating (4) with respect to $N$, setting the derivative to 0 and solving for $N$:
 
-$$\frac{dF}{dN}=R-\frac{2NR^2}{Ak}=0$$
+$$\frac{dF_{fast}}{dN}=R-\frac{2NR^2}{Ak}=0$$
 
 $$N=\frac{Ak}{2R}$$
 
@@ -85,55 +78,41 @@ According to the assumptions we've made, this is the sheep population that will 
 
 $${F_{fast}=\frac{Ak}{4}}$$
 
-It's important to note that if we plug (4) back into (2), our expression for equilibrium grass cover, we get $g = 0.5$. This should make sense - the derivative of the logistic function is maximum when $f(x) = 0.5$.
-
-Let's also note that there is a certain population of sheep at which all the grass will be eaten:
-
-$$N=\frac{Ak}{R}$$
-
 \subsection{The realistically slow farmer}
 
 For the case of the infinitely fast farmer, the rate at which wool is harvested is the same as the rate at which the sheep are eating. To account for the farmer being slow, we'll need to think a bit more.
 
-The farmer is off doing other things, and every $T$ seconds, they come back to shear the sheep. Upon shearing the sheep, all the sheep are wool-less. By the time they come back for the next shearing, the sheep have regrown some amount of wool. Let's say the number of sheep that have their wool is $w$ [unitless]. So when the farmer shears the sheep, they get $w$ wool. Then the average rate at which the farmer gathers wool, per block of pasture, is
+The farmer is off doing other things, and every $T$ seconds, they come back to shear the sheep. Upon shearing the sheep, all the sheep are wool-less. By the time they come back for the next shearing, the sheep have regrown some amount of wool. Let's say the number of sheep that have their wool is $N_w$ [unitless]. So when the farmer shears the sheep, they get $N_w$ wool. Then the average rate at which the farmer gathers wool, per block of pasture, is
 
-$$F_{slow}=\frac{w}{T}$$
+$$F_{slow}=\frac{N_w}{T}$$
 
-Now we need to consider the value of $w$. A sheep will only regrow wool upon eating if it doesn't already have any, so we should expect that the rate at which sheep are regrowing wool is the rate at which they are eating, $NRg$, times the fraction of sheep that are wool-less. The rate at which the sheep are eating is $g'$, the rate at which sheep are regrowing their wool is:
+Now we need to consider the value of $N_w$. A sheep will only regrow wool upon eating if it doesn't already have any, so we should expect that the rate at which sheep are regrowing wool is the rate at which they are eating, $NRX_g$, times the fraction of sheep that are wool-less. The rate at which the sheep are eating is $\dot{X_g}$, the rate at which sheep are regrowing their wool is:
 
-$$\frac{dw}{dt}=\frac{N-w}{N}NRg=(N-w)Rg$$
+$$\frac{dN_w}{dt}=\frac{N-N_w}{N}NRX_g=(N-N_w)RX_g$$
 
-At time $t=0$, the farmer shears all the sheep, leaving them with $w=0$, and then at time $t=T$, the farmer comes back and shears them again, gathering $w$ blocks of wool. How many sheep grew their wool back in time $T$ [s]? We can find out by solving the above equation for $w$. We'll separate it into $w$ terms and non $w$ terms:
+At time $t=0$, the farmer shears all the sheep, leaving them with $N_w=0$, and then at time $t=T$, the farmer comes back and shears them again, gathering $N_w$ blocks of wool. How many sheep grew their wool back in time $T$ [s]? We can find out by solving the above equation for $N_w$. We'll separate it into $N_w$ terms and non $N_w$ terms:
 
-$$\frac{1}{N-w}dw=(Rg)dt$$
+$$\frac{1}{N-N_w}dN_w=(RX_g)dt$$
 
-and integrate from initial state $(t=0, w=0)$ to the final state $(t=T, w=w_T)$. We're assuming the pasture has reached steady state, so $g$ is independent of $t$ and can be treated as a constant.
+and integrate from initial state $(t=0, N_w=0)$ to the final state $(t=T, N_w=N_w(T))$. We're assuming the pasture has reached steady state, so $X_g$ is independent of $t$ and can be treated as a constant.
 
-$$\int_{0}^{w_T}\frac{1}{N-w}dw=\int_{0}^{T}Rgdt$$
+$$\int_{0}^{N_w(T)}\frac{1}{N-N_w}dw=\int_{0}^{T}RX_gdt$$
 
-$$-\ln(\frac{N-w_T}{N})=TRg$$
+$$-\ln(\frac{N-N_w(T)}{N})=TRX_g$$
 
-And solve for $w_T$:
+And solve for $N_w(T)$:
 
-$$w_T=N\left(1-e^{-TRg}\right)$$
+$$N_w(T)=N\left(1-e^{-TRX_g}\right)$$
 
-So when the farmer comes back to shear the sheep at $t=T$, they will get $N-Ne^{-TRg}$ blocks of wool. If the farmer keeps coming back every $T$ seconds, they will be gathering wool at a rate
+So when the farmer comes back to shear the sheep at $t=T$, they will get $N-Ne^{-TRX_g}$ blocks of wool. If the farmer keeps coming back every $T$ seconds, they will be gathering wool at a rate
 
-$$F_{slow}=\frac{N\left(1-e^{-TRg}\right)}{T}$$
+$$F_{slow}=\frac{N\left(1-e^{-TRX_g}\right)}{T}$$
 
-Finally, we can plug (2) for g:
+Finally, we can plug (2) for $X_g$:
 
-$$F_{slow}=\frac{N\left(1-e^{-TR+\frac{TR^2N}{Ak}}\right)}{T}$$
+$$F_{slow}=\frac{N\left(1-e^{-TR(1-\frac{RN}{Ak})}\right)}{T}$$
 
-This is the expression for the rate of wool gathering by a slow farmer. The optimal density of sheep is now dependent on T. We can employ the following approximation, for small $x$:
-
-$$e^x-1\approx x$$
-
-to see that for small values of $T$, $F_{slow}\approx F_{fast}$:
-
-$$F_{slow}\approx NR-\frac{N^2R^2}{Ak}=F_{fast}$$
-
-To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (5) w.r.t. $N$:
+This is the expression for the rate of wool gathering by a slow farmer. The optimal density of sheep is now dependent on T. To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (5) w.r.t. $N$:
 
 $$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)e^{-TR+\frac{TR^2N}{Ak}}}{T}=0$$
 
@@ -155,7 +134,29 @@ Plugging this back into the (5), we get
 
 $$F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}$$
 
-f slow looks linear w.r.t. N for low values of N and high values of T?
+\subsection{Discussion}
+It's important to note that if we plug (4) back into (2), our expression for equilibrium grass cover, we get $g = 0.5$. This should make sense - the derivative of the logistic function is maximum when $f(x) = 0.5$.
+
+Let's also note that there is a certain population of sheep at which all the grass will be eaten:
+
+$$N=\frac{Ak}{R}$$
+
+We can employ the following approximation, for small $x$:
+
+$$e^x-1\approx x$$
+
+to see that for small values of $T$, $F_{slow}\approx F_{fast}$:
+
+$$F_{slow}\approx NR-\frac{N^2R^2}{Ak}=F_{fast}$$
+
+For large values of T and modest values of N, $e^{-TR(1-\frac{RN}{Ak})}\approx 0$, and so
+
+$$F_{slow}\approx \frac{N}{T}$$
+
+\begin{figure}[h]
+    \caption{Plots of $\frac{F_{slow}}{A}$ as a function of N and T.}
+    \includegraphics[width=\textwidth]{f_slow_na_t}
+\end{figure}
 
 \section{Experimental Work}
 
