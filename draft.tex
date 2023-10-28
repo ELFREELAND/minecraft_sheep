@@ -159,60 +159,54 @@ Plugging this back into (\ref{fslow}), we get
 
 $$F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}$$
 
-\section{Model Discussion}
+\section{Experimental determination of rate constants}
+
+Before proceeding further, it's worth determining the actual values of $k$ and $R$. This will be done via in-game experiments, which will be described briefly here. More detail can be found on the author's github\footnote{github.com/ELFREELAND/minecraft\_sheep}.
+
+Ten sheep were locked in cells with a grass block immediately underneath them. The cells included circuitry to count when each sheep ate the grass and automatically replenish it. In one hour, the sheep consumed 320 blocks of grass. This gives an R value of 0.00888 s\textsuperscript{-1}.
+
+A 30x30 patch of dirt was isolated from its surroundings and interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the analytic solution of the logistic equation (with carrying capacity 1):
+
+$$y = \frac{1}{1+e^{-k(x-x_{0})}}$$
+
+The best fit gave $k=0.00772.$ The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate
+
 \begin{figure}[h]
-    \caption{Plot of $\frac{F_{fast}}{A}$ as a function of N.}
+    \caption{Logistic model fit to grass growth data}
+    \label{fig:grass_logistic_fit}
+    \includegraphics[width=\textwidth]{grass_growth/grass_logistic}
+\end{figure}
+
+\section{Model Discussion}
+
+Figure \ref{fig:ffast} shows $F_{fast}$ and $X_g$ as a function of $N$, normalized for pasture area. These are simple curves, but there are a few important features to glean. First, the equilibrium $X_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
+
+Second, the maximum $F_{fast}$ occurs at $X_g=0.5$. This is a feature of the logistic model; population growth is greatest when the population is half of the carrying capacity.
+
+\begin{figure}[h]
+    \caption{Plot of $\frac{F_{fast}}{A}$ and $X_g$ as a function of N.}
+    \label{fig:ffast}
     \includegraphics[width=\textwidth]{f_fast}
 \end{figure}
-If we plug (\ref{optimal_n_ffast}) back into (\ref{grass_cover}), our expression for equilibrium grass cover, we get $g = 0.5$. This should make sense - the derivative of the logistic function is maximum when $f(x) = 0.5$.
 
-Let's also note that there is a certain population of sheep for which the equilibrium grass cover is zero:
-
-$$N=\frac{Ak}{R}$$
-
-We can employ the following approximation, for small $x$:
+Figure \ref{fig:fslow} shows $F_{slow}$ as a function of $N$ and $T$. For the case of $T=1$, $F_{slow}$ follows the same parabolic pattern with respect to $N$ as $F_{fast}$. We can see this algebraically by employing the following approximation, for small $x$:
 
 $$e^x-1\approx x$$
 
-to see that for small values of $T$, $F_{slow}\approx F_{fast}$:
+Applying this to (\ref{fslow}):
 
 $$F_{slow}\approx NR-\frac{N^2R^2}{Ak}=F_{fast}$$
 
-For large values of T and modest values of N, $e^{-TR(1-\frac{RN}{Ak})}\approx 0$, and so
+For large values of T and modest values of N, $F_{slow}$ is approximately linear w.r.t. $N$. Algebraically, the term $e^{-TR(1-\frac{RN}{Ak})}\approx 0$ in (\ref{fslow}) for large negative values of the exponent. Under these conditions,
 
 $$F_{slow}\approx \frac{N}{T}$$
 
+Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}.
+
 \begin{figure}[h]
     \caption{Plots of $\frac{F_{slow}}{A}$ as a function of N and T.}
+    \label{fig:fslow}
     \includegraphics[width=\textwidth]{f_slow_na_t}
 \end{figure}
-
-\section{Experimental Work}
-
-Now what? It seems like we have the answer we wanted, but what about $k$ and $R$? we need to know the actual rate at which sheep eat, and the rate at which grass grows.
-
-The user-maintained minecraft wiki says that sheep have a 1/1000 chance of attempting to eat on every other tick (a tick being 1/20 of a second). With ten chances per second at a probability of 1/1000, the expected value is 0.01. So we can estimate that $R=0.01$. However, this is based on data from a user-operated wiki with no citation standards and questionable accountability. So we will be conducting an in-game experiment to determine $R$.
-
-The grass mechanics are sufficiently complicated that it will also be easier for us to set up an experiment in-game to estimate the logistic growth parameters.
-
-\subsection{Sheep eating experiment}
-Determining R is not terribly difficult. We can simply set a timer and count how many times a sheep eats within that time.
-
-Counting the number of times the sheep eats is done as follows. The sheep is put in a 1x1 block enclosure, standing on a grass block. Facing the grass block is an observer. The observer is connected to a dropper, full of items and facing a chest. When the sheep eats the grass, it turns into dirt, activating the observer and causing an item to be placed in the chest. The number of times the sheep eats is counted by the number of items in the chest.
-
-The observer is also connected to a command block, which is set to place a grass block under the sheep using \verb!/setblock!. When the sheep eats the grass block, turning it into dirt, the command block will immediately replace the dirt with another grass block, ensuring that the sheep is always standing on grass.
-
-Ten of these sheep cells were allowed to run for 1 hour. The experiment was started and stopped using command blocks to \verb!/summon! and \verb!/kill! sheep in all cells simultaneously.
-
-In one hour, the sheep consumed 320 blocks of grass. This gives an R value of 0.00888 s\textsuperscript{-1}.
-
-\subsection{Grass growth experiment}
-
-Determining k is a little more complicated than R. The idea with this experiment is to begin with a large area of dirt with uniformly distributed grass blocks, and allow it to spread while recording the grass cover at regular intervals.
-
-The experiment was set up as follows. A 30x30 flat plot of dirt, isolated from any other nearby dirt and grass blocks, was partially covered in grass in this pattern:
-
-\section{Simulations}
-Finally, to validate all this math and get some actual insight into the sheep and their activities, we will be constructing first-principles simulations of grazing sheep.
 
 \end{document}
