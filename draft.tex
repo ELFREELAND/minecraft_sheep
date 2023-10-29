@@ -1,5 +1,5 @@
 \documentclass{article}
-\title{Minecraft Sheep}
+\title{Modelling the Efficiency of a Sheep Pasture in Minecraft}
 \author{Evan Freeland}
 \usepackage{graphicx}
 \date{\today}
@@ -31,7 +31,7 @@ There are a couple key assumptions being made here:
 
 \section{Model}
 \subsection{Grass consumption by sheep}
-Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to eat will only succeed if it is standing on a grass block. A pasture containing $N$ [unitless] sheep, whose surface is covered in grass with fraction $X_g$ [unitless], will lose grass at a rate
+Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to eat will only succeed if it is standing on a grass block. A pasture containing $N$ sheep, whose surface is covered in grass with fraction $X_g$, will lose grass at a rate
 
 \begin{equation}
     \label{sheep_eat}
@@ -41,24 +41,21 @@ Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to
 as it is eaten by sheep. This assumes that the sheep are distributed uniformly so that the probability of any sheep standing on a grass block is equal to the grass cover of the pasture.
 
 \subsection{Grass growth}
-The rate at which grass grows not as simple. If $X_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $X_g$ is close to 1, grass growth will be limited by a lack of places for the grass to spread \textit{to}. We will employ a logistic model, where grass growth follows the differential equation:
+The rate at which grass grows not as simple. If $X_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $X_g$ is close to 1, grass growth will be limited by a lack of places for the grass to spread \textit{to}. We will employ a logistic model, where population follows the differential equation:
 
 $$\dot{y}=ky\left(1-\frac{y}{p}\right)$$
 
-Where $k$ is a parameter representing the reproduction rate of the population and $p$ is the carrying capacity, the maximum population that the local environment can sustain.
+Where $y(t)$ is the population at time $t$, $k$ is a parameter representing the reproduction rate of the population and $p$ is the carrying capacity, the maximum population that the local environment can sustain.
 
-The logistic model is one of the oldest models for population growth. It was born from the older exponential (or \textit{Malthusian}) model, but modified to include a maximum population size. It is useful as a tool of instruction, but it's not very useful for modelling actual populations, and has since been supplanted by more sophisticated models. However, we are not dealing with an actual population, but rather a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. We will employ the following equation for grass growth:
+The logistic model is one of the oldest models for population growth. It was born from the older exponential (or \textit{Malthusian}) model, but modified to include a maximum population size. It is useful as a tool of instruction, but it's not very useful for modelling actual populations, and has since been supplanted by more sophisticated models. However, we are not dealing with an actual population, but rather a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. Defining $A$ as the total number of blocks in the pasture, we will consider the grass population $AX_g$, with carrying capacity $A$. The equation becomes the following:
 
-$$\dot{X}_g=kX_g(1-X_g)$$
+\begin{equation}
+    \label{grass_regrow}
+      A\dot{X}_g=kAX_g(1-X_g)  
+    \end{equation}
 
 Where k [s\textsuperscript{-1}] is a constant as described above. The carrying capacity is 1 because naturally, the pasture cannot be more than 100\% covered in grass.
 
-Let's define the pasture size $A$ [unitless]. If we multiply the above equation by $A$, we can express the rate of change of the total grass area rather than the grass cover:
-
-\begin{equation}
-\label{grass_regrow}
-  A\dot{X}_g=kAX_g(1-X_g)  
-\end{equation}
 
 \subsection{The fast farmer}
 
@@ -101,7 +98,7 @@ $${F_{fast}=\frac{Ak}{4}}$$
 
 For the case of the infinitely fast farmer, the rate at which wool is harvested is the same as the rate at which the sheep are eating. To account for the farmer being slow, we'll need to think a bit more.
 
-The farmer is off doing other things, and every $T$ seconds, they come back to shear the sheep. Upon shearing the sheep, all the sheep are wool-less. By the time they come back for the next shearing, the sheep have regrown some amount of wool. Let's say the number of sheep that have their wool is $N_w$ [unitless]. So when the farmer shears the sheep, they get $N_w$ wool. Then the average rate at which the farmer gathers wool is
+The farmer is off doing other things, and every $T$ seconds, they come back to shear the sheep. Upon shearing the sheep, all the sheep are wool-less. By the time they come back for the next shearing, the sheep have regrown some amount of wool. Let's say the number of sheep that have their wool is $N_w$. So when the farmer shears the sheep, they get $N_w$ wool. Then the average rate at which the farmer gathers wool is
 
 $$F_{slow}=\frac{N_w}{T}$$
 
@@ -165,11 +162,11 @@ Before proceeding further, it's worth determining the actual values of $k$ and $
 
 Ten sheep were locked in cells with a grass block immediately underneath them. The cells included circuitry to count when each sheep ate the grass and automatically replenish it. In one hour, the sheep consumed 320 blocks of grass. This gives an R value of 0.00888 s\textsuperscript{-1}.
 
-A 30x30 patch of dirt was isolated from its surroundings and interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the analytic solution of the logistic equation (with carrying capacity 1):
+A 30x30 patch of dirt was isolated from its surroundings and uniformly interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the exact solution of the logistic equation:
 
 $$y = \frac{1}{1+e^{-k(x-x_{0})}}$$
 
-The best fit gave $k=0.00772.$ The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate
+The best fit gave $k=0.00772.$ The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
 
 \begin{figure}[h]
     \caption{Logistic model fit to grass growth data}
@@ -179,7 +176,7 @@ The best fit gave $k=0.00772.$ The data and fit are compared in Figure \ref{fig:
 
 \section{Model Discussion}
 
-Figure \ref{fig:ffast} shows $F_{fast}$ and $X_g$ as a function of $N$, normalized for pasture area. These are simple curves, but there are a few important features to glean. First, the equilibrium $X_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
+Figure \ref{fig:ffast} shows $F_{fast}$ and $X_g$ as a function of $N$, normalized for pasture area. These are simple curves,a parabola and straight line respectively, but there are a few important features to glean. First, the equilibrium $X_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
 
 Second, the maximum $F_{fast}$ occurs at $X_g=0.5$. This is a feature of the logistic model; population growth is greatest when the population is half of the carrying capacity.
 
@@ -208,5 +205,13 @@ Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fsl
     \label{fig:fslow}
     \includegraphics[width=\textwidth]{f_slow_na_t}
 \end{figure}
+
+\section{Stochastic model}
+
+Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but 
+
+$$\Pr(AX_g\uparrow x,t=t_0+\Delta t)=Poisson(A\dot{X}_g\Delta t)=\frac{(A\dot{X}_g\Delta t)^xe^{-A\dot{X}_g\Delta t}}{x!}$$
+
+$$\Pr(AX_g\downarrow x,t=t_0+\Delta t)=Poisson(NRX_g\Delta t)=\frac{(NRX_g\Delta t)^xe^{-NRX_g\Delta t}}{x!}$$
 
 \end{document}
