@@ -196,7 +196,7 @@ $$F_{slow}\approx NR-\frac{N^2R^2}{Ak}=F_{fast}$$
 
 For large values of T and modest values of N, $F_{slow}$ is approximately linear w.r.t. $N$. Algebraically, the term $e^{-TR(1-\frac{RN}{Ak})}\approx 0$ in (\ref{fslow}) for large negative values of the exponent. Under these conditions,
 
-$$F_{slow}\approx \frac{N}{T}$$
+$$F_{slow}\approx \frac{N\left(1-0\right)}{T}=\frac{N}{T}$$
 
 Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}.
 
@@ -206,12 +206,24 @@ Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fsl
     \includegraphics[width=\textwidth]{f_slow_na_t}
 \end{figure}
 
-\section{Stochastic model}
+\section{Stochastic simulations}
 
-Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but 
+Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but we could get a more complete picture of the mechanics at work by incorporating the stochastic nature of the pasture into our model.
 
-$$\Pr(AX_g\uparrow x,t=t_0+\Delta t)=Poisson(A\dot{X}_g\Delta t)=\frac{(A\dot{X}_g\Delta t)^xe^{-A\dot{X}_g\Delta t}}{x!}$$
+While stochastic models for populations can be developed without terrible difficulty, they are almost always mathematically intractable (reference). Even the simple logistic model employed here requires simplifying assumptions for theoretical analysis.
 
-$$\Pr(AX_g\downarrow x,t=t_0+\Delta t)=Poisson(NRX_g\Delta t)=\frac{(NRX_g\Delta t)^xe^{-NRX_g\Delta t}}{x!}$$
+Here, we will employ a monte carlo-style numerical approach to model the stochastic behavior of the pasture.
+
+\subsection{The fast farmer}
+Within a small time interval $\Delta t$, a sheep has a chance $RX_g\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $RX_g$ success probability.
+
+Similarly, we can model grass growth with a binomial distribution. Slightly rearranging (\ref{grass_regrow}),
+
+$$A\dot{X}_g=(AX_g)\cdot k(1-X_g)$$
+
+The equation is now a product of the number of grass blocks in the pasture, $AX_g$, and a quantity with units of rate, $k(1-X_g)$. We can gather from this that the number of grass blocks that regrow in time $\Delta t$ is a binomial random variable with $AX_g$ trials and $k(1-X_g)\Delta t$ success probability.
+
+\subsection{The slow farmer}
+The mechanics of sheep eating and grass regrowth are the same as for the fast farmer case, so we'll turn our attention to wool growth. If $n$ sheep eat grass, and the number of sheep that have their wool is $N_w$, the chance of each woolless sheep regrowing its wool is the chance that it ate. Therefore the number of sheep that regrow their wool is a binomial random variable with $N-N_w$ trials and $\frac{n}{N}$ probability of success.
 
 \end{document}
