@@ -16,7 +16,6 @@ valarante child game.... look to cartoon grapfix to make kid player happy like c
 \textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in Minecraft version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared sheared to gather wool, and require grass to eat to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
 
 \subsection{Deterministic vs. Stochastic}
-Shortly, we will seek a model for the population of grass in a pasture. The growth and consumption of grass is a stochastic process, like everything else in \textit{Minecraft}, and also like population evolution in the real world. Early population models were deterministic, but more sophisticated and useful models are stochastic, incorporating the uncertainty inherent in population size. This paper will take the deterministic approach, owing to its simplicity\footnote{And the author's modest mathematical background.}.
 
 \subsection{A brief tangent about units}
 Canonically, one block is one cubic meter. 
@@ -198,6 +197,8 @@ For large values of T and modest values of N, $F_{slow}$ is approximately linear
 
 $$F_{slow}\approx \frac{N\left(1-0\right)}{T}=\frac{N}{T}$$
 
+Physically, this represents conditions for which all of the sheep have regrown their wool by the time the farmer comes back to harvest, so the farmer is simply gathering $N$ blocks of wool with every harvest.
+
 Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}.
 
 \begin{figure}[h]
@@ -215,15 +216,31 @@ While stochastic models for populations can be developed without terrible diffic
 Here, we will employ a monte carlo-style numerical approach to model the stochastic behavior of the pasture.
 
 \subsection{The fast farmer}
-Within a small time interval $\Delta t$, a sheep has a chance $RX_g\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $RX_g$ success probability.
+Within a small time interval $\Delta t$, a sheep has a chance $RX_g\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $RX_g\Delta t$ success probability.
 
-Similarly, we can model grass growth with a binomial distribution. Slightly rearranging (\ref{grass_regrow}),
+The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler poisson distribution, with expected value $NRX_g\Delta t$:
 
-$$A\dot{X}_g=(AX_g)\cdot k(1-X_g)$$
+$$\Pr(\Delta(AX_g)_{e}=-x)=\frac{(NRX_g\Delta t)^xe^{-NRX_g\Delta t}}{x!}$$
 
-The equation is now a product of the number of grass blocks in the pasture, $AX_g$, and a quantity with units of rate, $k(1-X_g)$. We can gather from this that the number of grass blocks that regrow in time $\Delta t$ is a binomial random variable with $AX_g$ trials and $k(1-X_g)\Delta t$ success probability.
+Where $\Delta(AX_g)_{e}$ is the change in grass population due to sheep eating. Note that $\Delta(AX_g)_{e}$ is always negative.
+
+%need to explain why LRE is valid
+
+Similarly, we can model grass growth with a poisson distribution. The probability that the grass population changes by an amount $\Delta(AX_g)_{r}$ due to grass regrowth is a poisson distribution with expected value $A\dot{X}_g\Delta t$, which is given by (\ref{grass_regrow}):
+
+$$\Pr(\Delta(AX_g)_{r}=x)=\frac{(kAX_g(1-X_g)\Delta t)^xe^{kAX_g(1-X_g)\Delta t}}{x!}$$
+
+The overall change in $AX_g$ is the sum of the changes due to eating and grass regrowth:
+
+$$\Delta(AX_g) = \Delta(AX_g)_{e} + \Delta(AX_g)_{r}$$
+
+The probability distribution of $\Delta(AX_g)$ is a convolution of these two distributions:
+
+$$\Pr(\Delta(AX_g)=x)=\sum_{n=-\infty}^{\infty}\Pr(\Delta(AX_g)_{e}=-n)\Pr(\Delta(AX_g)_{r}=n+x)$$
+
+$$=\sum_{n=-\infty}^{\infty}\frac{(NRX_g\Delta t)^ne^{-NRX_g\Delta t}}{n!}\frac{(kAX_g(1-X_g)\Delta t)^{n+x}e^{-kAX_g(1-X_g)\Delta t}}{(n+x)!}$$
 
 \subsection{The slow farmer}
-The mechanics of sheep eating and grass regrowth are the same as for the fast farmer case, so we'll turn our attention to wool growth. If $n$ sheep eat grass, and the number of sheep that have their wool is $N_w$, the chance of each woolless sheep regrowing its wool is the chance that it ate. Therefore the number of sheep that regrow their wool is a binomial random variable with $N-N_w$ trials and $\frac{n}{N}$ probability of success.
+The mechanics of sheep eating and grass regrowth are the same as for the fast farmer case, so we'll turn our attention to wool growth. If $n$ sheep eat grass, and the number of sheep that have their wool is $N_w$, each woolless sheep has change $\frac{n}{N}$ to regrow its wool. Therefore the number of sheep that regrow their wool is a binomial random variable with $N-N_w$ trials and $\frac{n}{N}$ probability of success.
 
 \end{document}
