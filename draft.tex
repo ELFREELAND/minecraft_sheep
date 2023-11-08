@@ -28,7 +28,7 @@ There are a couple key assumptions being made here:
 \item Another important thing to note is that pastures can be discussed in terms of \textit{blocks} or \textit{area}. One block is canonically one square meter, So pasture size has units of area. However, area in minecraft is discretized, i.e. you cannot have fractional area. For this reason, pasture area will be discussed using the unitless quantity \textit{blocks}.
 \end{itemize}
 
-\section{Model}
+\section{Deterministic model}
 \subsection{Grass consumption by sheep}
 Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to eat will only succeed if it is standing on a grass block. A pasture containing $N$ sheep, consisting of $A$ blocks, $N_g$ of which are grass, will lose grass at a rate
 
@@ -116,43 +116,41 @@ $$-\ln\left(\frac{N-N_w(T)}{N}\right)=\frac{TRN_g}{A}$$
 
 And solve for $N_w(T)$:
 
-$$N_w(T)=N-N\exp\left(\frac{TRN_g}{A}\right)$$
+$$N_w(T)=N-Ne^{\frac{TRN_g}{A}}$$
 
 So when the farmer comes back to shear the sheep at $t=T$, they will get $N-N\exp\left(-\frac{TRN_g}{A}\right)$ blocks of wool. If the farmer keeps coming back every $T$ seconds, they will be gathering wool at a rate
 
-$$F_{slow}=\frac{N-N\exp\left(-\frac{TRN_g}{A}\right)}{T}$$
+$$F_{slow}=\frac{N-Ne^{-\frac{TRN_g}{A}}}{T}$$
 
 Finally, we can plug (\ref{grass_cover}) for $N_g$:
 
 \begin{equation}
     \label{fslow}
-F_{slow}=\frac{N-N\exp\left(-TR+\frac{TR^2N}{Ak}\right)}{T}
+F_{slow}=\frac{N-Ne^{-TR+\frac{TR^2N}{Ak}}}{T}
 \end{equation}
 
 This is the expression for the rate of wool gathering by a slow farmer. The optimal density of sheep is now dependent on T. To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (\ref{fslow}) w.r.t. $N$:
 
-$$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)\exp\left(-TR+\frac{TR^2N}{Ak}\right)}{T}=0$$
+$$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)e^{-TR+\frac{TR^2N}{Ak}}}{T}=0$$
 
 Attempting to solve for $N$ leads to
 
-$$\left(\frac{TR^2N}{Ak}+1\right)\exp\left(\frac{TR^2N}{Ak}+1\right)=e^{TR+1}$$
+$$\left(\frac{TR^2N}{Ak}+1\right)e^{\frac{TR^2N}{Ak}+1}=e^{TR+1}$$
 
 At this point we must invoke the lambert $W$ function, a nonelementary function satisfying
 
-$$W(x)\exp\left(W(x)\right)=x$$
+$$W(x)e^{W(x)}=x$$
 
 applying this leads to
 
-$$W(\exp(TR+1))=\frac{TR^2N}{Ak}+1$$
+$$W(e^{TR+1})=\frac{TR^2N}{Ak}+1$$
 
 \begin{equation}
     \label{fslow_optimal_n}
-N=\frac{Ak}{TR^2}(W(\exp(TR+1))-1) 
+    N=\frac{Ak}{TR^2}(W(e^{TR+1})-1) 
 \end{equation}
 
 Plugging this back into (\ref{fslow}), we get
-
-$$F_{slow}=\frac{Ak(W(\exp\left(TR+1\right))-1)(1-\exp\left(-TR+W(\exp(TR+1))-1\right))}{R^2T^2}$$
 
 $$F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}$$
 
@@ -164,7 +162,7 @@ Ten sheep were locked in cells with a grass block immediately underneath them. T
 
 A 30x30 patch of dirt was isolated from its surroundings and uniformly interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the exact solution of the logistic equation:
 
-$$y = \frac{p}{1+\left(\frac{p-y_0}{y_0}\right)\exp(-kt)}$$
+$$y = \frac{p}{1+\left(\frac{p-y_0}{y_0}\right)e^{-kt}}$$
 
 The best fit gave $k=0.00773.$ The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
 
@@ -176,12 +174,12 @@ The best fit gave $k=0.00773.$ The data and fit are compared in Figure \ref{fig:
 
 \section{Model Discussion}
 
-Figure \ref{fig:ffast} shows $F_{fast}$ and $X_g$ as a function of $N$, normalized for pasture area. These are simple curves,a parabola and straight line respectively, but there are a few important features to glean. First, the equilibrium $X_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
+Figure \ref{fig:ffast} shows $F_{fast}$ and $N_g$ as a function of $N$, normalized for pasture area. These are simple curves,a parabola and straight line respectively, but there are a few important features to glean. First, the equilibrium $N_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
 
-Second, the maximum $F_{fast}$ occurs at $X_g=0.5$. This is a feature of the logistic model; population growth is greatest when the population is half of the carrying capacity.
+Second, the maximum $F_{fast}$ occurs at $N_g=0.5A$. This is a feature of the logistic model; population growth is greatest when the population is half of the carrying capacity.
 
 \begin{figure}[h]
-    \caption{Plot of $\frac{F_{fast}}{A}$ and $X_g$ as a function of N.}
+    \caption{Plot of $\frac{F_{fast}}{A}$ and $\frac{N_g}{A}$ as a function of N.}
     \label{fig:ffast}
     \includegraphics[width=\textwidth]{f_fast}
 \end{figure}
@@ -190,7 +188,7 @@ Figure \ref{fig:fslow} shows $F_{slow}$ as a function of $N$ and $T$. For the ca
 
 $$e^x-1\approx x$$
 
-Applying this to (\ref{fslow}):
+In equation (\ref{fslow}), the exponent is small for small values of $T$, therefore:
 
 $$F_{slow}\approx NR-\frac{N^2R^2}{Ak}=F_{fast}$$
 
@@ -200,15 +198,19 @@ $$F_{slow}\approx \frac{N\left(1-0\right)}{T}=\frac{N}{T}$$
 
 Physically, this represents conditions for which all of the sheep have regrown their wool by the time the farmer comes back to harvest, so the farmer is simply gathering $N$ blocks of wool with every harvest.
 
+%make this figure have a b c
+
 Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}.
 
 \begin{figure}[h]
     \caption{Plots of $\frac{F_{slow}}{A}$ as a function of N at constant T, and T at constant N.}
     \label{fig:fslow}
     \includegraphics[width=\textwidth]{f_slow_na_t}
+    \includegraphics[width=8cm]{f_slow_contour}
+    \centering
 \end{figure}
 
-\section{Stochastic simulations}
+\section{Stochastic model}
 
 Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but we could get a more complete picture of the mechanics at work by incorporating the stochastic nature of the pasture into our model.
 
@@ -217,37 +219,36 @@ While stochastic models for populations can be developed without terrible diffic
 Here, we will employ a monte carlo-style numerical approach to model the stochastic behavior of the pasture.
 
 \subsection{The fast farmer}
-Within a small time interval $\Delta t$, a sheep has a chance $RX_g\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $RX_g\Delta t$ success probability.
+Within a small time interval $\Delta t$, a sheep has a chance $\frac{RN_g}{A}\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $\frac{RN_g}{A}\Delta t$ success probability.
 
-The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler poisson distribution, with expected value $NRX_g\Delta t$:
+The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler poisson distribution, with expected value $\frac{NRN_g}{A}\Delta t$:
 
 \begin{equation}
-    \Pr(\Delta(AX_g)_{e}=-x)=\frac{(NRX_g\Delta t)^xe^{-NRX_g\Delta t}}{x!}
+    \Pr(\Delta_e N_g=-x)=\frac{(\frac{NRN_g}{A}\Delta t)^xe^{-\frac{NRN_g}{A}\Delta t}}{x!}
     \label{sheep_eat_poisson}
 \end{equation}
 
-
-Where $\Delta(AX_g)_{e}$ is the change in grass population due to sheep eating. Note that $\Delta(AX_g)_{e}$ is always negative.
+Where $\Delta_eN_g$ is the change in grass population due to sheep eating. Note that $\Delta_eN_g$ is always negative.
 
 %need to explain why LRE is valid
 
-Similarly, we can model grass growth with a poisson distribution. The probability that the grass population changes by an amount $\Delta(AX_g)_{r}$ in time $\Delta t$ due to grass regrowth is a poisson distribution with expected value $A\dot{X}_g\Delta t$, which is given by (\ref{grass_regrow}):
+Similarly, we can model grass growth with a poisson distribution. The probability that the grass population changes by an amount $\Delta_rN_g$ in time $\Delta t$ due to grass regrowth is a poisson distribution with expected value $\dot{N}_g\Delta t$, which is given by (\ref{grass_regrow}):
 
 \begin{equation}
-    \Pr(\Delta(AX_g)_{r}=x)=\frac{(kAX_g(1-X_g)\Delta t)^xe^{kAX_g(1-X_g)\Delta t}}{x!}
+    \Pr(\Delta_rN_g=x)=\frac{(kN_g(1-\frac{N_g}{A})\Delta t)^xe^{kN_g(1-\frac{N_g}{A})\Delta t}}{x!}
     \label{grass_regrow_poisson}
 \end{equation}
 
 The overall change in $AX_g$ is the sum of the changes due to eating and grass regrowth:
 
-$$\Delta(AX_g) = \Delta(AX_g)_{e} + \Delta(AX_g)_{r}$$
+$$\Delta N_g = \Delta_eN_g + \Delta_rN_g$$
 
-The probability distribution of $\Delta(AX_g)$ is a convolution of these two distributions:
+The probability distribution of $\Delta N_g$ is a convolution of these two distributions:
 
-$$\Pr(\Delta(AX_g)=x)=\sum_{n=-\infty}^{\infty}\Pr(\Delta(AX_g)_{e}=-n)\Pr(\Delta(AX_g)_{r}=n+x)$$
+$$\Pr(\Delta N_g=x)=\sum_{n=-\infty}^{\infty}\Pr(\Delta_eN_g=-n)\Pr(\Delta_rN_g=n+x)$$
 
 \begin{equation}
-    =\sum_{n=-\infty}^{\infty}\frac{(NRX_g\Delta t)^ne^{-NRX_g\Delta t}}{n!}\frac{(kAX_g(1-X_g)\Delta t)^{n+x}e^{-kAX_g(1-X_g)\Delta t}}{(n+x)!}
+    =\sum_{n=-\infty}^{\infty}\frac{(\frac{NRN_g}\Delta t)^ne^{-\frac{NRN_g}{A}\Delta t}}{n!}\frac{(kN_g(1-\frac{N_g}{A})\Delta t)^{n+x}e^{-kN_g(1-\frac{N_g}{A})\Delta t}}{(n+x)!}
     \label{grass_pop_poisson_conv}
 \end{equation}
 
