@@ -30,54 +30,53 @@ There are a couple key assumptions being made here:
 
 \section{Model}
 \subsection{Grass consumption by sheep}
-Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to eat will only succeed if it is standing on a grass block. A pasture containing $N$ sheep, whose surface is covered in grass with fraction $X_g$, will lose grass at a rate
+Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to eat will only succeed if it is standing on a grass block. A pasture containing $N$ sheep, consisting of $A$ blocks, $N_g$ of which are grass, will lose grass at a rate
 
 \begin{equation}
     \label{sheep_eat}
-    NRX_g
+    \frac{NRN_g}{A}
 \end{equation}
 
 as it is eaten by sheep. This assumes that the sheep are distributed uniformly so that the probability of any sheep standing on a grass block is equal to the grass cover of the pasture.
 
 \subsection{Grass growth}
-The rate at which grass grows not as simple. If $X_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $X_g$ is close to 1, grass growth will be limited by a lack of places for the grass to spread \textit{to}. We will employ a logistic model, where population follows the differential equation:
+The rate at which grass grows not as simple. If $N_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $N_g$ is large, grass growth will be limited by a lack of places for the grass to spread \textit{to}. We will employ a logistic model, where population follows the differential equation:
 
 $$\dot{y}=ky\left(1-\frac{y}{p}\right)$$
 
 Where $y(t)$ is the population at time $t$, $k$ is a parameter representing the reproduction rate of the population and $p$ is the carrying capacity, the maximum population that the local environment can sustain.
 
-The logistic model is one of the oldest models for population growth. It was born from the older exponential (or \textit{Malthusian}) model, but modified to include a maximum population size. It is useful as a tool of instruction, but it's not very useful for modelling actual populations, and has since been supplanted by more sophisticated models. However, we are not dealing with an actual population, but rather a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. Defining $A$ as the total number of blocks in the pasture, we will consider the grass population $AX_g$, with carrying capacity $A$. The equation becomes the following:
+The logistic model is one of the oldest models for population growth. It was born from the older exponential (or \textit{Malthusian}) model, but modified to include a maximum population size. It is useful as a tool of instruction, but it's not very useful for modelling actual populations, and has since been supplanted by more sophisticated models. However, we are not dealing with an actual population, but rather a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. For our purposes, the population of interest is the number of grass blocks in the pasture $N_g$, and the carrying capacity is $A$:
 
 \begin{equation}
     \label{grass_regrow}
-      A\dot{X}_g=kAX_g(1-X_g)  
+      \dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)  
     \end{equation}
 
-Where k [s\textsuperscript{-1}] is a constant as described above. The carrying capacity is 1 because naturally, the pasture cannot be more than 100\% covered in grass.
-
+Where k [s\textsuperscript{-1}] is a constant as described above.
 
 \subsection{The fast farmer}
 
 If the pasture reaches equilibrium, the rate at which the sheep eat should be equal to the rate at which the grass is regrowing. We can express this, by combining (\ref{sheep_eat}) and (\ref{grass_regrow}), as
 
-$$NRX_g=A\dot{X}_g=kAX_g(1-X_g)$$
+$$\frac{NRN_g}{A}=\dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)$$
 
 This expression is important because it gives us the equilibrium grass cover as a function of sheep population - a little algebra gives 
 
 \begin{equation}
-\label{grass_cover}
-X_g=1-\frac{NR}{Ak}
+    \label{grass_cover}
+    N_g=A-\frac{NR}{k}
 \end{equation}
 
 Plugging this into our logistic model for grass growth (\ref{grass_regrow}) gives
 
-$$A\dot{X}_g = NR - \frac{N^2R^2}{Ak}$$
+$$\dot{N}_g = NR - \frac{N^2R^2}{Ak}$$
 
 This is the steady-state grass regrowth rate as a function of sheep population. If the farmer is shearing sheep as quickly as they get their wool, they are getting 1 block of wool for every block of grass the sheep eat. Let's define $F$ [s\textsuperscript{-1}] as the rate at which the farmer gathers wool.
 
 \begin{equation}
 \label{ffast}
-F_{fast}=A\dot{X}_g=NR - \frac{N^2R^2}{Ak}
+F_{fast}=\dot{N}_g=NR-\frac{N^2R^2}{Ak}
 \end{equation}
 
 We can find the maximum by differentiating (\ref{ffast}) with respect to $N$, setting the derivative to 0 and solving for $N$:
@@ -85,8 +84,8 @@ We can find the maximum by differentiating (\ref{ffast}) with respect to $N$, se
 $$\frac{dF_{fast}}{dN}=R-\frac{2NR^2}{Ak}=0$$
 
 \begin{equation}
-\label{optimal_n_ffast}
-N=\frac{Ak}{2R}
+    \label{optimal_n_ffast}
+    N=\frac{Ak}{2R}
 \end{equation}
 
 According to the assumptions we've made, this is the sheep population that will produce the maximum rate of grass growth. At this population,
@@ -101,57 +100,59 @@ The farmer is off doing other things, and every $T$ seconds, they come back to s
 
 $$F_{slow}=\frac{N_w}{T}$$
 
-Now we need to consider the value of $N_w$. A sheep will only regrow wool upon eating if it doesn't already have any, so we should expect that the rate at which sheep are regrowing wool is the rate at which they are eating, $NRX_g$, times the fraction of sheep that are wool-less:
+Now we need to consider the value of $N_w$. A sheep will only regrow wool upon eating if it doesn't already have any, so we should expect that the rate at which sheep are regrowing wool is the rate at which they are eating, $\frac{NRN_g}{A}$, times the fraction of sheep that are wool-less:
 
-$$\dot{N}_w=\frac{dN_w}{dt}=\frac{N-N_w}{N}NRX_g=(N-N_w)RX_g$$
+$$\dot{N}_w=\frac{dN_w}{dt}=\frac{N-N_w}{N}\frac{NRN_g}{A}=(N-N_w)\frac{RN_g}{A}$$
 
 At time $t=0$, the farmer shears all the sheep, leaving them with $N_w=0$, and then at time $t=T$, the farmer comes back and shears them again, gathering $N_w$ blocks of wool. How many sheep grew their wool back in time $T$ [s]? We can find out by solving the above equation for $N_w$. We'll separate it into $N_w$ terms and non $N_w$ terms:
 
-$$\frac{1}{N-N_w}dN_w=(RX_g)dt$$
+$$\frac{1}{N-N_w}dN_w=\frac{RN_g}{A}dt$$
 
-and integrate from initial state $(t=0, N_w=0)$ to the final state $(t=T, N_w=N_w(T))$. We're assuming the pasture has reached steady state, so $X_g$ is independent of $t$ and can be treated as a constant.
+and integrate from initial state $(t=0, N_w=0)$ to the final state $(t=T, N_w=N_w(T))$. We're assuming the pasture has reached steady state, so $N_g$ is independent of $t$ and can be treated as a constant.
 
-$$\int_{0}^{N_w(T)}\frac{1}{N-N_w}dw=\int_{0}^{T}RX_gdt$$
+$$\int_{0}^{N_w(T)}\frac{1}{N-N_w}dw=\int_{0}^{T}\frac{RN_g}{A}dt$$
 
-$$-\ln\left(\frac{N-N_w(T)}{N}\right)=TRX_g$$
+$$-\ln\left(\frac{N-N_w(T)}{N}\right)=\frac{TRN_g}{A}$$
 
 And solve for $N_w(T)$:
 
-$$N_w(T)=N\left(1-e^{-TRX_g}\right)$$
+$$N_w(T)=N-N\exp\left(\frac{TRN_g}{A}\right)$$
 
-So when the farmer comes back to shear the sheep at $t=T$, they will get $N-Ne^{-TRX_g}$ blocks of wool. If the farmer keeps coming back every $T$ seconds, they will be gathering wool at a rate
+So when the farmer comes back to shear the sheep at $t=T$, they will get $N-N\exp\left(-\frac{TRN_g}{A}\right)$ blocks of wool. If the farmer keeps coming back every $T$ seconds, they will be gathering wool at a rate
 
-$$F_{slow}=\frac{N\left(1-e^{-TRX_g}\right)}{T}$$
+$$F_{slow}=\frac{N-N\exp\left(-\frac{TRN_g}{A}\right)}{T}$$
 
-Finally, we can plug (\ref{grass_cover}) for $X_g$:
+Finally, we can plug (\ref{grass_cover}) for $N_g$:
 
 \begin{equation}
     \label{fslow}
-F_{slow}=\frac{N\left(1-e^{-TR(1-\frac{RN}{Ak})}\right)}{T}
+F_{slow}=\frac{N-N\exp\left(-TR+\frac{TR^2N}{Ak}\right)}{T}
 \end{equation}
 
 This is the expression for the rate of wool gathering by a slow farmer. The optimal density of sheep is now dependent on T. To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (\ref{fslow}) w.r.t. $N$:
 
-$$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)e^{-TR+\frac{TR^2N}{Ak}}}{T}=0$$
+$$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)\exp\left(-TR+\frac{TR^2N}{Ak}\right)}{T}=0$$
 
 Attempting to solve for $N$ leads to
 
-$$\left(\frac{TR^2N}{Ak}+1\right)e^{\frac{TR^2N}{Ak}+1}=e^{TR+1}$$
+$$\left(\frac{TR^2N}{Ak}+1\right)\exp\left(\frac{TR^2N}{Ak}+1\right)=e^{TR+1}$$
 
 At this point we must invoke the lambert $W$ function, a nonelementary function satisfying
 
-$$W(x)e^{W(x)}=x$$
+$$W(x)\exp\left(W(x)\right)=x$$
 
 applying this leads to
 
-$$W(e^{TR+1})=\frac{TR^2N}{Ak}+1$$
+$$W(\exp(TR+1))=\frac{TR^2N}{Ak}+1$$
 
 \begin{equation}
     \label{fslow_optimal_n}
-N=\frac{Ak}{TR^2}(W(e^{TR+1})-1) 
+N=\frac{Ak}{TR^2}(W(\exp(TR+1))-1) 
 \end{equation}
 
 Plugging this back into (\ref{fslow}), we get
+
+$$F_{slow}=\frac{Ak(W(\exp\left(TR+1\right))-1)(1-\exp\left(-TR+W(\exp(TR+1))-1\right))}{R^2T^2}$$
 
 $$F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}$$
 
@@ -163,9 +164,9 @@ Ten sheep were locked in cells with a grass block immediately underneath them. T
 
 A 30x30 patch of dirt was isolated from its surroundings and uniformly interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the exact solution of the logistic equation:
 
-$$y = \frac{1}{1+e^{-k(x-x_{0})}}$$
+$$y = \frac{p}{1+\left(\frac{p-y_0}{y_0}\right)\exp(-kt)}$$
 
-The best fit gave $k=0.00772.$ The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
+The best fit gave $k=0.00773.$ The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
 
 \begin{figure}[h]
     \caption{Logistic model fit to grass growth data}
@@ -202,7 +203,7 @@ Physically, this represents conditions for which all of the sheep have regrown t
 Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}.
 
 \begin{figure}[h]
-    \caption{Plots of $\frac{F_{slow}}{A}$ as a function of N and T.}
+    \caption{Plots of $\frac{F_{slow}}{A}$ as a function of N at constant T, and T at constant N.}
     \label{fig:fslow}
     \includegraphics[width=\textwidth]{f_slow_na_t}
 \end{figure}
@@ -220,15 +221,22 @@ Within a small time interval $\Delta t$, a sheep has a chance $RX_g\Delta t$ to 
 
 The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler poisson distribution, with expected value $NRX_g\Delta t$:
 
-$$\Pr(\Delta(AX_g)_{e}=-x)=\frac{(NRX_g\Delta t)^xe^{-NRX_g\Delta t}}{x!}$$
+\begin{equation}
+    \Pr(\Delta(AX_g)_{e}=-x)=\frac{(NRX_g\Delta t)^xe^{-NRX_g\Delta t}}{x!}
+    \label{sheep_eat_poisson}
+\end{equation}
+
 
 Where $\Delta(AX_g)_{e}$ is the change in grass population due to sheep eating. Note that $\Delta(AX_g)_{e}$ is always negative.
 
 %need to explain why LRE is valid
 
-Similarly, we can model grass growth with a poisson distribution. The probability that the grass population changes by an amount $\Delta(AX_g)_{r}$ due to grass regrowth is a poisson distribution with expected value $A\dot{X}_g\Delta t$, which is given by (\ref{grass_regrow}):
+Similarly, we can model grass growth with a poisson distribution. The probability that the grass population changes by an amount $\Delta(AX_g)_{r}$ in time $\Delta t$ due to grass regrowth is a poisson distribution with expected value $A\dot{X}_g\Delta t$, which is given by (\ref{grass_regrow}):
 
-$$\Pr(\Delta(AX_g)_{r}=x)=\frac{(kAX_g(1-X_g)\Delta t)^xe^{kAX_g(1-X_g)\Delta t}}{x!}$$
+\begin{equation}
+    \Pr(\Delta(AX_g)_{r}=x)=\frac{(kAX_g(1-X_g)\Delta t)^xe^{kAX_g(1-X_g)\Delta t}}{x!}
+    \label{grass_regrow_poisson}
+\end{equation}
 
 The overall change in $AX_g$ is the sum of the changes due to eating and grass regrowth:
 
@@ -238,7 +246,10 @@ The probability distribution of $\Delta(AX_g)$ is a convolution of these two dis
 
 $$\Pr(\Delta(AX_g)=x)=\sum_{n=-\infty}^{\infty}\Pr(\Delta(AX_g)_{e}=-n)\Pr(\Delta(AX_g)_{r}=n+x)$$
 
-$$=\sum_{n=-\infty}^{\infty}\frac{(NRX_g\Delta t)^ne^{-NRX_g\Delta t}}{n!}\frac{(kAX_g(1-X_g)\Delta t)^{n+x}e^{-kAX_g(1-X_g)\Delta t}}{(n+x)!}$$
+\begin{equation}
+    =\sum_{n=-\infty}^{\infty}\frac{(NRX_g\Delta t)^ne^{-NRX_g\Delta t}}{n!}\frac{(kAX_g(1-X_g)\Delta t)^{n+x}e^{-kAX_g(1-X_g)\Delta t}}{(n+x)!}
+    \label{grass_pop_poisson_conv}
+\end{equation}
 
 \subsection{The slow farmer}
 The mechanics of sheep eating and grass regrowth are the same as for the fast farmer case, so we'll turn our attention to wool growth. If $n$ sheep eat grass, and the number of sheep that have their wool is $N_w$, each woolless sheep has change $\frac{n}{N}$ to regrow its wool. Therefore the number of sheep that regrow their wool is a binomial random variable with $N-N_w$ trials and $\frac{n}{N}$ probability of success.
