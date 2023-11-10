@@ -13,20 +13,12 @@ valarante child game.... look to cartoon grapfix to make kid player happy like c
 
 \section{Introduction}
 
-\textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in Minecraft version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared sheared to gather wool, and require grass to eat to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
+\textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in Minecraft version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared to gather wool, and require grass to eat to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
 
 \subsection{Deterministic vs. Stochastic}
 
 \subsection{A brief tangent about units}
 Canonically, one block is one cubic meter. 
-\section{Key assumptions and notes}
-
-There are a couple key assumptions being made here:
-\begin{itemize}
-\item Grass growth is a simple process in which all dirt blocks have an equal chance to turn into a grass block on a tick. This is not entirely realistic, since grass growth is contingent on spreading from an adjacent block, but as long as dirt blocks consistently have adjacent grass blocks it should work.
-\item The actual rate at which the farm produces wool is limited by the rate at which the farmer shears the sheep. Initially, we will assume the farmer is infinitely fast, so really the goal is to have the greatest rate of sheep eating grass. Later, we will look at the mechanics of a farm where the farmer harvests the wool at regular intervals.
-\item Another important thing to note is that pastures can be discussed in terms of \textit{blocks} or \textit{area}. One block is canonically one square meter, So pasture size has units of area. However, area in minecraft is discretized, i.e. you cannot have fractional area. For this reason, pasture area will be discussed using the unitless quantity \textit{blocks}.
-\end{itemize}
 
 \section{Deterministic model}
 \subsection{Grass consumption by sheep}
@@ -50,33 +42,36 @@ The logistic model is one of the oldest models for population growth. It was bor
 
 \begin{equation}
     \label{grass_regrow}
-      \dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)  
-    \end{equation}
+    \dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)  
+\end{equation}
 
 Where k [s\textsuperscript{-1}] is a constant as described above.
 
 \subsection{The fast farmer}
 
-If the pasture reaches equilibrium, the rate at which the sheep eat should be equal to the rate at which the grass is regrowing. We can express this, by combining (\ref{sheep_eat}) and (\ref{grass_regrow}), as
+In the presence of sheep, $\dot{N}_g$ is also affected by the sheep's appetite (\ref{sheep_eat}):
+
+\begin{equation}
+    \label{combined_sheep_grass}
+    \dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}
+\end{equation}
+
+When the pasture reaches steady state, $\dot(N)_g=0$, and
 
 $$\frac{NRN_g}{A}=\dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)$$
 
-This expression is important because it gives us the equilibrium grass cover as a function of sheep population - a little algebra gives 
+A little algebra gives the equilibrium grass population:
 
 \begin{equation}
     \label{grass_cover}
     N_g=A-\frac{NR}{k}
 \end{equation}
 
-Plugging this into our logistic model for grass growth (\ref{grass_regrow}) gives
-
-$$\dot{N}_g = NR - \frac{N^2R^2}{Ak}$$
-
-This is the steady-state grass regrowth rate as a function of sheep population. If the farmer is shearing sheep as quickly as they get their wool, they are getting 1 block of wool for every block of grass the sheep eat. Let's define $F$ [s\textsuperscript{-1}] as the rate at which the farmer gathers wool.
+Let's define $F$ [s\textsuperscript{-1}] as the rate at which the farmer gathers wool. If the farmer is shearing the sheep as fast as they eat, $F$ is equal to the expression in (\ref{sheep_eat}). Combining (\ref{sheep_eat}) and (\ref{grass_cover}):
 
 \begin{equation}
 \label{ffast}
-F_{fast}=\dot{N}_g=NR-\frac{N^2R^2}{Ak}
+F_{fast}=\frac{NRN_g}{A}=NR-\frac{N^2R^2}{Ak}
 \end{equation}
 
 We can find the maximum by differentiating (\ref{ffast}) with respect to $N$, setting the derivative to 0 and solving for $N$:
@@ -172,7 +167,7 @@ The best fit gave $k=0.00773.$ The data and fit are compared in Figure \ref{fig:
     \includegraphics[width=\textwidth]{grass_growth/grass_logistic}
 \end{figure}
 
-\section{Model Discussion}
+\section{Deterministic model discussion}
 
 Figure \ref{fig:ffast} shows $F_{fast}$ and $N_g$ as a function of $N$, normalized for pasture area. These are simple curves,a parabola and straight line respectively, but there are a few important features to glean. First, the equilibrium $N_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
 
@@ -214,45 +209,54 @@ Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fsl
 
 Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but we could get a more complete picture of the mechanics at work by incorporating the stochastic nature of the pasture into our model.
 
-While stochastic models for populations can be developed without terrible difficulty, they are almost always mathematically intractable (reference). Even the simple logistic model employed here requires simplifying assumptions for theoretical analysis.
-
-Here, we will employ a monte carlo-style numerical approach to model the stochastic behavior of the pasture.
+The physics engine of \textit{Minecraft} operates in time intervals of 0.05 seconds. Therefore the model discussed here will use discrete time intervals $\Delta t=0.05$
 
 \subsection{The fast farmer}
-Within a small time interval $\Delta t$, a sheep has a chance $\frac{RN_g}{A}\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $\frac{RN_g}{A}\Delta t$ success probability.
+Within time $\Delta t$, a sheep has a chance $\frac{RN_g}{A}\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $\frac{RN_g}{A}\Delta t$ success probability.
 
-The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler poisson distribution, with expected value $\frac{NRN_g}{A}\Delta t$:
-
-\begin{equation}
-    \Pr(\Delta_e N_g=-x)=\frac{(\frac{NRN_g}{A}\Delta t)^xe^{-\frac{NRN_g}{A}\Delta t}}{x!}
-    \label{sheep_eat_poisson}
-\end{equation}
-
-Where $\Delta_eN_g$ is the change in grass population due to sheep eating. Note that $\Delta_eN_g$ is always negative.
+The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a Poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler Poisson distribution, with expected value $\frac{NRN_g}{A}\Delta t$.
 
 %need to explain why LRE is valid
 
-Similarly, we can model grass growth with a poisson distribution. The probability that the grass population changes by an amount $\Delta_rN_g$ in time $\Delta t$ due to grass regrowth is a poisson distribution with expected value $\dot{N}_g\Delta t$, which is given by (\ref{grass_regrow}):
+Similarly, we can model grass growth with a Poisson distribution. The probability that the grass population changes by an amount $\Delta_rN_g$ in time $\Delta t$ due to grass regrowth is a poisson distribution with expected value $\dot{N}_g\Delta t=kN_g\left(1-\frac{N_g}{A}\right)\Delta t$, as given by (\ref{grass_regrow}).
 
-\begin{equation}
-    \Pr(\Delta_rN_g=x)=\frac{(kN_g(1-\frac{N_g}{A})\Delta t)^xe^{kN_g(1-\frac{N_g}{A})\Delta t}}{x!}
-    \label{grass_regrow_poisson}
-\end{equation}
+If $n_r$ is the number of grass blocks that regrew, and $n_e$ is the number that were eaten by sheep, the overall change in $N_g$ is given by:
 
-The overall change in $AX_g$ is the sum of the changes due to eating and grass regrowth:
+$$\Delta N_g = n_r-n_e$$
 
-$$\Delta N_g = \Delta_eN_g + \Delta_rN_g$$
+The probability distribution of the difference of two Poisson-distributed variables $n_1$ and $n_2$, with expected values $\mu_1$ and $\mu_2$, is given by the Skellam distribution (reference):
 
-The probability distribution of $\Delta N_g$ is a convolution of these two distributions:
+$$\Pr(n_1-n_2=x)=e^{-(\mu_1+\mu_2)}\left(\frac{\mu_1}{\mu_2}\right)^{\frac{x}{2}}I_x(2\sqrt{\mu_1\mu_2})$$
 
-$$\Pr(\Delta N_g=x)=\sum_{n=-\infty}^{\infty}\Pr(\Delta_eN_g=-n)\Pr(\Delta_rN_g=n+x)$$
+Where $I_x$ is a modified bessel function of the first kind of order $x$.
 
-\begin{equation}
-    =\sum_{n=-\infty}^{\infty}\frac{(\frac{NRN_g}\Delta t)^ne^{-\frac{NRN_g}{A}\Delta t}}{n!}\frac{(kN_g(1-\frac{N_g}{A})\Delta t)^{n+x}e^{-kN_g(1-\frac{N_g}{A})\Delta t}}{(n+x)!}
-    \label{grass_pop_poisson_conv}
-\end{equation}
+Therefore, $\Delta N_g$ is dictated by a Skellam distribution with
 
-\subsection{The slow farmer}
-The mechanics of sheep eating and grass regrowth are the same as for the fast farmer case, so we'll turn our attention to wool growth. If $n$ sheep eat grass, and the number of sheep that have their wool is $N_w$, each woolless sheep has change $\frac{n}{N}$ to regrow its wool. Therefore the number of sheep that regrow their wool is a binomial random variable with $N-N_w$ trials and $\frac{n}{N}$ probability of success.
+$$\mu_1=kN_g\left(1-\frac{N_g}{A}\right)\Delta t$$
+
+$$\mu_2=\frac{NRN_g}{A}\Delta t$$
+
+Let's consider a pasture at $N_g=x$ at time $t_0$. The probability that the pasture ends up in the state $(N_g=x+\Delta N_g, t=t_0+\Delta t)$ is given by the probability of a change $\Delta N_g$ times the probability of the state $(N_g=x, t=t_0)$.
+
+However, the pasture may arrive at the same value of $N_g$ through multiple paths. For example, All of the following paths would lead to $(N_g=100,t=t_0+\Delta t)$:
+
+\begin{samepage}
+    \begin{itemize}
+        \item $(N_g=100, t=t_0)$ and $\Delta N_g=0$
+        \item $(N_g=101,t=t_0)$ and $\Delta N_g=-1$
+        \item $(N_g=102,t=t_0)$ and $\Delta N_g=-2$
+        \item $(N_g=99,t=t_0)$ and $\Delta N_g=+1$
+        \item \dots
+        \item $(N_g=100+n,t=t_0)$ and $\Delta N_g=-n$
+    \end{itemize}
+\end{samepage}
+
+And so on. The probability of each path is the probability of the initial state existing, times the probability of the value of $\Delta N_g$. In general the probability of the state $(N_g=x+n, t=t_0+\Delta t)$ is the sum of the probabilities of all the paths that lead there, i.e. paths for which the initial state is $(N_g=x, t=t_0)$ and $\Delta N_g=n$, for any value of $n$:
+
+$$\Pr(N_g=x+n,t=t_0+\Delta t)=\sum_{n}\Pr(N_g=x, t=t_0)\Pr(\Delta N_g=n)$$
+
+This looks like a convolution of the distribution of $N_g$ with the distribution of $\Delta N_g$. However, this is not a simple convolution, as the distribution of $\Delta N_g$ is dependent on the value of $N_g$.
+
+Although this effort is becoming mathematically intractible, a numerical solution is still well within the realm of possiblity. If the distribution of $N_g$ is known at $t=t_0$, the probability of all possible paths can be calculated to get the distribution of $N_g$ at $t=t_0+\Delta t$, and then for $t=t_0+2\Delta t$, $t=t_0+3\Delta t$, and so on.
 
 \end{document}
