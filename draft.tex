@@ -1,6 +1,7 @@
 \documentclass{article}
 \title{Modelling the Efficiency of a Sheep Pasture in Minecraft}
 \author{Evan Freeland}
+\usepackage{amsmath}
 \usepackage{graphicx}
 \date{\today}
 
@@ -56,7 +57,7 @@ In the presence of sheep, $\dot{N}_g$ is also affected by the sheep's appetite (
     \dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}
 \end{equation}
 
-When the pasture reaches steady state, $\dot(N)_g=0$, and
+When the pasture reaches steady state, $\dot{N}_g=0$, and
 
 $$\frac{NRN_g}{A}=\dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)$$
 
@@ -70,8 +71,8 @@ A little algebra gives the equilibrium grass population:
 Let's define $F$ [s\textsuperscript{-1}] as the rate at which the farmer gathers wool. If the farmer is shearing the sheep as fast as they eat, $F$ is equal to the expression in (\ref{sheep_eat}). Combining (\ref{sheep_eat}) and (\ref{grass_cover}):
 
 \begin{equation}
-\label{ffast}
-F_{fast}=\frac{NRN_g}{A}=NR-\frac{N^2R^2}{Ak}
+    \label{ffast}
+    F_{fast}=\frac{NRN_g}{A}=NR-\frac{N^2R^2}{Ak}
 \end{equation}
 
 We can find the maximum by differentiating (\ref{ffast}) with respect to $N$, setting the derivative to 0 and solving for $N$:
@@ -209,9 +210,9 @@ Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fsl
 
 Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but we could get a more complete picture of the mechanics at work by incorporating the stochastic nature of the pasture into our model.
 
+\subsection{Unsimplified model}
 The physics engine of \textit{Minecraft} operates in time intervals of 0.05 seconds. Therefore the model discussed here will use discrete time intervals $\Delta t=0.05$
 
-\subsection{The fast farmer}
 Within time $\Delta t$, a sheep has a chance $\frac{RN_g}{A}\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $\frac{RN_g}{A}\Delta t$ success probability.
 
 The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a Poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler Poisson distribution, with expected value $\frac{NRN_g}{A}\Delta t$.
@@ -224,9 +225,9 @@ If $n_r$ is the number of grass blocks that regrew, and $n_e$ is the number that
 
 $$\Delta N_g = n_r-n_e$$
 
-The probability distribution of the difference of two Poisson-distributed variables $n_1$ and $n_2$, with expected values $\mu_1$ and $\mu_2$, is given by the Skellam distribution (reference):
+The probability distribution of the difference of two Poisson-distributed variables $n_1$ and $n_2$, with expected values $m_1$ and $m_2$, is given by the Skellam distribution (reference):
 
-$$\Pr(n_1-n_2=x)=e^{-(\mu_1+\mu_2)}\left(\frac{\mu_1}{\mu_2}\right)^{\frac{x}{2}}I_x(2\sqrt{\mu_1\mu_2})$$
+$$\Pr(n_1-n_2=x)=e^{-(m_1+m_2)}\left(\frac{m_1}{m_2}\right)^{\frac{x}{2}}I_x(2\sqrt{m_1m_2})$$
 
 Where $I_x$ is a modified bessel function of the first kind of order $x$.
 
@@ -236,27 +237,69 @@ $$\mu_1=kN_g\left(1-\frac{N_g}{A}\right)\Delta t$$
 
 $$\mu_2=\frac{NRN_g}{A}\Delta t$$
 
-Let's consider a pasture at $N_g=x$ at time $t_0$. The probability that the pasture ends up in the state $(N_g=x+\Delta N_g, t=t_0+\Delta t)$ is given by the probability of a change $\Delta N_g$ times the probability of the state $(N_g=x, t=t_0)$.
+Let's consider a pasture at $N_g=x$ at time $t_0$, i.e., $N_g(t_0)=x$. The probability that the pasture ends up in the state $N_g(t+\Delta t)=x+\Delta N_g$ is given by the probability of a change $\Delta N_g$ times the probability of the state $N_g(t_0)=x$.
 
-However, the pasture may arrive at the same value of $N_g$ through multiple paths. For example, All of the following paths would lead to $(N_g=100,t=t_0+\Delta t)$:
+However, the pasture may arrive at the same value of $N_g$ through multiple paths. For example, All of the following paths would lead to $N_g(t+\Delta t)=100$:
 
 \begin{samepage}
     \begin{itemize}
-        \item $(N_g=100, t=t_0)$ and $\Delta N_g=0$
-        \item $(N_g=101,t=t_0)$ and $\Delta N_g=-1$
-        \item $(N_g=102,t=t_0)$ and $\Delta N_g=-2$
-        \item $(N_g=99,t=t_0)$ and $\Delta N_g=+1$
+        \item $N_g(t_0)=100$ and $\Delta N_g=0$
+        \item $N_g(t_0)=101$ and $\Delta N_g=-1$
+        \item $N_g(t_0)=102$ and $\Delta N_g=-2$
+        \item $N_g(t_0)=99$ and $\Delta N_g=+1$
         \item \dots
-        \item $(N_g=100+n,t=t_0)$ and $\Delta N_g=-n$
+        \item $N_g(t_0)=100+n$ and $\Delta N_g=-n$
     \end{itemize}
 \end{samepage}
 
-And so on. The probability of each path is the probability of the initial state existing, times the probability of the value of $\Delta N_g$. In general the probability of the state $(N_g=x+n, t=t_0+\Delta t)$ is the sum of the probabilities of all the paths that lead there, i.e. paths for which the initial state is $(N_g=x, t=t_0)$ and $\Delta N_g=n$, for any value of $n$:
+And so on. The probability of each path is the probability of the initial state existing, times the probability of the value of $\Delta N_g$. In general the probability of the state $N_g(t_0+\Delta t)=x+n$ is the sum of the probabilities of all the paths that lead there, i.e. paths for which the initial state is $N_g(t_0)=x$ and $\Delta N_g=n$, for any value of $n$:
 
-$$\Pr(N_g=x+n,t=t_0+\Delta t)=\sum_{n}\Pr(N_g=x, t=t_0)\Pr(\Delta N_g=n)$$
+$$\Pr(N_g(t_0+\Delta t)=x+n)=\sum_{n}\Pr(N_g(t_0)=x)\Pr(\Delta N_g=n)$$
 
 This looks like a convolution of the distribution of $N_g$ with the distribution of $\Delta N_g$. However, this is not a simple convolution, as the distribution of $\Delta N_g$ is dependent on the value of $N_g$.
 
 Although this effort is becoming mathematically intractible, a numerical solution is still well within the realm of possiblity. If the distribution of $N_g$ is known at $t=t_0$, the probability of all possible paths can be calculated to get the distribution of $N_g$ at $t=t_0+\Delta t$, and then for $t=t_0+2\Delta t$, $t=t_0+3\Delta t$, and so on.
+
+\subsection{Kolmogorov equations}
+
+From (\ref{combined_sheep_grass}),
+
+$$\dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}$$
+
+Let $\lambda$ be the grass growth rate and $\mu$ be the grass comsumption rate.
+
+$$\lambda=kN_g\left(1-\frac{N_g}{A}\right)$$
+
+$$\mu=\frac{NRN_g}{A}$$
+
+The Kolmogorov equations
+
+$$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
+
+with
+
+$$\mathbf{p}(t)=[p_0(t), p_1(t), p_2(t) \dots p_A(t)]$$
+
+$$p_x(t)=\Pr(N_g(t)=x)$$
+
+$$\dot{\mathbf{p}}=\frac{d\mathbf{p}}{dt}$$
+
+$$\mathbf{R}=
+\begin{bmatrix}
+    r_{0,0} & r_{0,1} & r_{0,2} & \cdots & r_{0,A}\\
+    r_{1,0} & r_{1,1} & r_{1,2} & \cdots & r_{1,A}\\
+    r_{2,0} & r_{2,1} & r_{2,2} & \cdots & r_{2,A}\\
+    \vdots & \vdots & \vdots & \ddots & \vdots\\
+    r_{A,0} & r_{A,1} & r_{A,2} & \cdots & r_{A,A}
+\end{bmatrix}$$
+
+$$r_{i,j}=\begin{cases}
+    r_{0,j}=0\\
+    r_{i,i+1}=\lambda\\
+    r_{i+1,i}=\mu\\
+    r_{i,i}=-\lambda-\mu
+\end{cases}
+$$
+
 
 \end{document}
