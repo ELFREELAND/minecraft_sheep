@@ -202,79 +202,45 @@ Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fsl
     \centering
 \end{figure}
 
-\section{Stochastic model}
+\section{Stochastic model with Kolmogorov equations}
 
-Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but we could get a more complete picture of the mechanics at work by incorporating the stochastic nature of the pasture into our model.
+We will develop a stochastic model for the grass population in the pasture using Kolmogorov equations. This approach for population modelling is described in more detail in (REF), but the key elements will be outlined here.
 
-\subsection{Kolmogorov equations}
+In the deterministic model, we considered the grass population as a single number, $N_g$, which evolved with time. In the stochastic approach, we will consider the evolution of the \textit{probability distribution} of $N_g$ with time.
 
-Approaches to developing stochastic population models can be found in detail in (REFERENCE TEXTBOOK). One such approach will be briefly explained here.
+We'll introduce the following notation:
 
-Recall equation (\ref{combined_sheep_grass}), the differential equation dictating the evolution of grass population:
+$$p_x(t)=\Pr(N_g(t)=x)$$
 
-$$\dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}$$
+In words, $p_x(t)$ is the probability that the pasture has $N_g=x$ at time $t$.
 
-We can separate this equation into the grass growth rate $\lambda$ and grass consumption rate $\mu$, both of which are functions of $N_g$:
+We'll define $\lambda$ as the grass growth rate and $\mu$ as the grass consumption rate. From equations (\ref{sheep_eat}) and (\ref{grass_regrow}):
 
 $$\lambda(N_g)=kN_g\left(1-\frac{N_g}{A}\right)$$
 
 $$\mu(N_g)=\frac{NRN_g}{A}$$
 
-Consider a pasture at time $t=t_0$, in the state $N_g(t_0)=x$. A short time ago, at time $t=t_0-\Delta t$, the pasture was in the state $N_g(t_0-\Delta t)$. The pasture may have arrived at the state at $N_g(t_0)=x$ in one of several ways:
+Note that both $\lambda$ and $\mu$ are functions of $N_g$.
 
-\begin{itemize}
-    \item $N_g(t_0-\Delta t)=x$, and neither eating nor growth take place.
-    \item $N_g(t_0-\Delta t)=x-1$, and the pasture gains 1 grass block due to growth.
-    \item $N_g(t_0-\Delta t)=x+1$, and the pasture loses 1 grass block due to eating.
-    \item Two or more growth and eating events occur.
-\end{itemize}
+Kolmogorov equations describe the evolution of a probability distribution with time. In our case, we will have a set of ordinary differential equations of the form:
 
-We'll consider that the probability of one grass growth in time $\Delta t$ is $\lambda\Delta t$, and the probability of one grass block being eaten is $\mu\Delta t$. This gives the probability of nothing happening as $1-(\lambda+\mu)\Delta t$. Finally, the probability of multiple events is some product of $\lambda\Delta t$ and $\mu\Delta t$, and is therefore dependent on $\Delta t$ with order 2 or higher. In summary,
+$$\dot{p}_x(t)=-p_x(t)(\lambda(x)+\mu(x))+p_{x-1}(t)\lambda(x-1)+p_{x+1}(t)\mu(x+1)$$
 
-\begin{align*}
-    \Pr(\mathrm{no\;event})=&1-(\lambda+\mu)\Delta t\\
-    \Pr(\mathrm{1\;growth})=&\lambda\Delta t\\
-    \Pr(\mathrm{1\;consumption})=&\mu\Delta t\\
-    \Pr(\mathrm{multiple\;events})\approx&O(\Delta t^2)\\
-\end{align*}
+There are a few important things to note. First, every possible value of $x$ will have its own equation, meaning we will have a system of $A+1$ equations. Second, this is a continuous-time model. The process of developing this model involves considering a change in $p_x$ from time $t$ to time $t+\Delta t$ and taking the limit as $\Delta t\rightarrow0$. In the process of taking this limit, the probability of multiple events occuring in time $\Delta t$ (e.g. multiple sheep eating or multiple grass blocks regrowing) approaches zero. A continuous time model is appropriate for real-world ecology, but the physics engine of \textit{Minecraft} operates in discretized time intervals, called \textit{ticks}, of $0.05$ seconds. Taking the limit of $\Delta t\rightarrow0$ therefore loses out on the very real possibility of multiple events occuring in a single tick. This limitation will be addressed later.
 
-The pasture may arrive at the state $N_g(t_0)=x$ in any of the four ways described above. The probability of each pathway is the probability that the pasture was in the required state $N_g(t_0-\Delta t)$ times the probability of the event (eating or growth) required to bring the pasture to $N_g(t_0)=x$. The probability of the pasture arriving at $N_g(t_0)=x$ is the sum of the probability of each pathway. Abbreviating $p_x(t)=\Pr(N_g(t)=x)$:
+Proceeding with the Kolmogorov equation approach, there are a couple of special cases to address, namely, the cases of $\dot{p}_0$ and $\dot{p}_A$. Since $\lambda(0)=\mu(0)=0$ and $p_{-1}=p_{A+1}=0$:
 
-\begin{align*}
-    p_x(t_0)&=p_x(t_0-\Delta t)(1-(\lambda+\mu)\Delta t)\\
-    &+p_{x-1}(t_0-\Delta t)\lambda\Delta t\\
-    &+p_{x+1}(t_0-\Delta t)\mu\Delta t\\
-    &+O(\Delta t^2)
-\end{align*}
+$$\dot{p}_0(t)=p_1(t)\mu(1)$$
 
-subtracting $p_x(t_0-\Delta t)$ and dividing by $\Delta t$:
+$$\dot{p}_A(t)=-p_A(t)(\lambda(A)+\mu(A))+p_{A-1}(t)\mu(A-1)$$
 
-\begin{align*}
-    \frac{p_x(t_0)-p_x(t_0-\Delta t)}{\Delta t}&=-p_x(t_0-\Delta t)(\lambda+\mu)\\
-    &+p_{x-1}(t_0-\Delta t)\lambda\\
-    &+p_{x+1}(t_0-\Delta t)\mu\\
-    &+O(\Delta t^1)
-\end{align*}
-
-and taking the limit as $\Delta t\rightarrow 0$:
-
-\begin{align*}
-    \frac{dp_x}{dt}=\dot{p}_x(t_0)=-p_x(t_0)(\lambda+\mu)+p_{x-1}(t_0)\lambda+p_{x+1}(t_0)\mu
-\end{align*}
-
-What we have here is a differential equation relating the probability distribution of $N_g$ with its own time derivative. 
-
-The Kolmogorov equations
-
-$$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
-
-with
+We'll wrap up the system into vector form for convenient expression:
 
 $$\mathbf{p}(t)=[p_0(t), p_1(t), p_2(t) \dots p_A(t)]$$
 
-$$p_x(t)=\Pr(N_g(t)=x)$$
+$$\dot{\mathbf{p}}(t)=\frac{d\mathbf{p}}{dt}=[\dot{p}_0(t), \dot{p}_1(t), \dot{p}_2(t) \dots \dot{p}_A(t)]$$
 
-$$\dot{\mathbf{p}}=\frac{d\mathbf{p}}{dt}$$
+$$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
 
 $$\mathbf{R}=
 \begin{bmatrix}
@@ -287,11 +253,13 @@ $$\mathbf{R}=
 
 $$r_{i,j}=\begin{cases}
     r_{0,j}=0\\
-    r_{i,i+1}=\lambda\\
-    r_{i+1,i}=\mu\\
-    r_{i,i}=-\lambda-\mu
+    r_{i,i+1}=\lambda(i)\\
+    r_{i+1,i}=\mu(i)\\
+    r_{i,i}=-(\lambda(i)+\mu(i))
 \end{cases}
 $$
+
+All that's left to do now is to pick a value for $N$ and an initial value for $N_g$ and solve. This is most easily done numerically
 
 \subsection{Unsimplified model}
 The physics engine of \textit{Minecraft} operates in time intervals of 0.05 seconds. Therefore the model discussed here will use discrete time intervals $\Delta t=0.05$
