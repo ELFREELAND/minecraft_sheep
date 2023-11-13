@@ -8,10 +8,6 @@
 \begin{document}
 \maketitle
 
-\begin{abstract}
-valarante child game.... look to cartoon grapfix to make kid player happy like children show.. valarante cartoon world with rainbow unlike counter strike with dark corridorr and raelistic gun.. valarante like playhouse. valarant playor run from csgo fear of dark world and realism
-\end{abstract}
-
 \section{Introduction}
 
 \textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in Minecraft version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared to gather wool, and require grass to eat to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
@@ -39,7 +35,7 @@ $$\dot{y}=ky\left(1-\frac{y}{p}\right)$$
 
 Where $y(t)$ is the population at time $t$, $k$ is a parameter representing the reproduction rate of the population and $p$ is the carrying capacity, the maximum population that the local environment can sustain.
 
-The logistic model is one of the oldest models for population growth. It was born from the older exponential (or \textit{Malthusian}) model, but modified to include a maximum population size. It is useful as a tool of instruction, but it's not very useful for modelling actual populations, and has since been supplanted by more sophisticated models. However, we are not dealing with an actual population, but rather a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. For our purposes, the population of interest is the number of grass blocks in the pasture $N_g$, and the carrying capacity is $A$:
+The logistic model is one of the oldest models for population growth. It was born from the older exponential (or \textit{Malthusian}) model, but modified to include a maximum population size. It is useful as a tool of instruction, but has since been succeeded by more sophisticated and comprehentive models. However, we are not dealing with real-world ecology, but a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. Our population of interest is the number of grass blocks in the pasture $N_g$, and the carrying capacity is $A$:
 
 \begin{equation}
     \label{grass_regrow}
@@ -50,7 +46,7 @@ Where k [s\textsuperscript{-1}] is a constant as described above.
 
 \subsection{The fast farmer}
 
-In the presence of sheep, $\dot{N}_g$ is also affected by the sheep's appetite (\ref{sheep_eat}):
+In the presence of sheep, $\dot{N}_g$ is also affected by the sheep's appetite. Combining equations (\ref{sheep_eat}) and (\ref{grass_regrow}) leads to the following differential equation:
 
 \begin{equation}
     \label{combined_sheep_grass}
@@ -125,7 +121,7 @@ Finally, we can plug (\ref{grass_cover}) for $N_g$:
 F_{slow}=\frac{N-Ne^{-TR+\frac{TR^2N}{Ak}}}{T}
 \end{equation}
 
-This is the expression for the rate of wool gathering by a slow farmer. The optimal density of sheep is now dependent on T. To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (\ref{fslow}) w.r.t. $N$:
+This is the expression for the rate of wool gathering by a slow farmer. To find the optimal sheep population, we can take the same approach as we did with the fast farmer case. Differentiating (\ref{fslow}) w.r.t. $N$:
 
 $$\frac{dF}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)e^{-TR+\frac{TR^2N}{Ak}}}{T}=0$$
 
@@ -210,6 +206,93 @@ Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fsl
 
 Thus far we have considered a deterministic model for the grass population of the pasture. This allows for convenient exact solutions for the population evolution, but we could get a more complete picture of the mechanics at work by incorporating the stochastic nature of the pasture into our model.
 
+\subsection{Kolmogorov equations}
+
+Approaches to developing stochastic population models can be found in detail in (REFERENCE TEXTBOOK). One such approach will be briefly explained here.
+
+Recall equation (\ref{combined_sheep_grass}), the differential equation dictating the evolution of grass population:
+
+$$\dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}$$
+
+We can separate this equation into the grass growth rate $\lambda$ and grass consumption rate $\mu$, both of which are functions of $N_g$:
+
+$$\lambda(N_g)=kN_g\left(1-\frac{N_g}{A}\right)$$
+
+$$\mu(N_g)=\frac{NRN_g}{A}$$
+
+Consider a pasture at time $t=t_0$, in the state $N_g(t_0)=x$. A short time ago, at time $t=t_0-\Delta t$, the pasture was in the state $N_g(t_0-\Delta t)$. The pasture may have arrived at the state at $N_g(t_0)=x$ in one of several ways:
+
+\begin{itemize}
+    \item $N_g(t_0-\Delta t)=x$, and neither eating nor growth take place.
+    \item $N_g(t_0-\Delta t)=x-1$, and the pasture gains 1 grass block due to growth.
+    \item $N_g(t_0-\Delta t)=x+1$, and the pasture loses 1 grass block due to eating.
+    \item Two or more growth and eating events occur.
+\end{itemize}
+
+We'll consider that the probability of one grass growth in time $\Delta t$ is $\lambda\Delta t$, and the probability of one grass block being eaten is $\mu\Delta t$. This gives the probability of nothing happening as $1-(\lambda+\mu)\Delta t$. Finally, the probability of multiple events is some product of $\lambda\Delta t$ and $\mu\Delta t$, and is therefore dependent on $\Delta t$ with order 2 or higher. In summary,
+
+\begin{align*}
+    \Pr(\mathrm{no\;event})=&1-(\lambda+\mu)\Delta t\\
+    \Pr(\mathrm{1\;growth})=&\lambda\Delta t\\
+    \Pr(\mathrm{1\;consumption})=&\mu\Delta t\\
+    \Pr(\mathrm{multiple\;events})\approx&O(\Delta t^2)\\
+\end{align*}
+
+The pasture may arrive at the state $N_g(t_0)=x$ in any of the four ways described above. The probability of each pathway is the probability that the pasture was in the required state $N_g(t_0-\Delta t)$ times the probability of the event (eating or growth) required to bring the pasture to $N_g(t_0)=x$. The probability of the pasture arriving at $N_g(t_0)=x$ is the sum of the probability of each pathway. Abbreviating $p_x(t)=\Pr(N_g(t)=x)$:
+
+\begin{align*}
+    p_x(t_0)&=p_x(t_0-\Delta t)(1-(\lambda+\mu)\Delta t)\\
+    &+p_{x-1}(t_0-\Delta t)\lambda\Delta t\\
+    &+p_{x+1}(t_0-\Delta t)\mu\Delta t\\
+    &+O(\Delta t^2)
+\end{align*}
+
+subtracting $p_x(t_0-\Delta t)$ and dividing by $\Delta t$:
+
+\begin{align*}
+    \frac{p_x(t_0)-p_x(t_0-\Delta t)}{\Delta t}&=-p_x(t_0-\Delta t)(\lambda+\mu)\\
+    &+p_{x-1}(t_0-\Delta t)\lambda\\
+    &+p_{x+1}(t_0-\Delta t)\mu\\
+    &+O(\Delta t^1)
+\end{align*}
+
+and taking the limit as $\Delta t\rightarrow 0$:
+
+\begin{align*}
+    \frac{dp_x}{dt}=\dot{p}_x(t_0)=-p_x(t_0)(\lambda+\mu)+p_{x-1}(t_0)\lambda+p_{x+1}(t_0)\mu
+\end{align*}
+
+What we have here is a differential equation relating the probability distribution of $N_g$ with its own time derivative. 
+
+The Kolmogorov equations
+
+$$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
+
+with
+
+$$\mathbf{p}(t)=[p_0(t), p_1(t), p_2(t) \dots p_A(t)]$$
+
+$$p_x(t)=\Pr(N_g(t)=x)$$
+
+$$\dot{\mathbf{p}}=\frac{d\mathbf{p}}{dt}$$
+
+$$\mathbf{R}=
+\begin{bmatrix}
+    r_{0,0} & r_{0,1} & r_{0,2} & \cdots & r_{0,A}\\
+    r_{1,0} & r_{1,1} & r_{1,2} & \cdots & r_{1,A}\\
+    r_{2,0} & r_{2,1} & r_{2,2} & \cdots & r_{2,A}\\
+    \vdots & \vdots & \vdots & \ddots & \vdots\\
+    r_{A,0} & r_{A,1} & r_{A,2} & \cdots & r_{A,A}
+\end{bmatrix}$$
+
+$$r_{i,j}=\begin{cases}
+    r_{0,j}=0\\
+    r_{i,i+1}=\lambda\\
+    r_{i+1,i}=\mu\\
+    r_{i,i}=-\lambda-\mu
+\end{cases}
+$$
+
 \subsection{Unsimplified model}
 The physics engine of \textit{Minecraft} operates in time intervals of 0.05 seconds. Therefore the model discussed here will use discrete time intervals $\Delta t=0.05$
 
@@ -260,46 +343,9 @@ This looks like a convolution of the distribution of $N_g$ with the distribution
 
 Although this effort is becoming mathematically intractible, a numerical solution is still well within the realm of possiblity. If the distribution of $N_g$ is known at $t=t_0$, the probability of all possible paths can be calculated to get the distribution of $N_g$ at $t=t_0+\Delta t$, and then for $t=t_0+2\Delta t$, $t=t_0+3\Delta t$, and so on.
 
-\subsection{Kolmogorov equations}
+\begin{thebibliography}{1}
+    \bibitem{skellam} Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations.
 
-From (\ref{combined_sheep_grass}),
-
-$$\dot{N}_g=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}$$
-
-Let $\lambda$ be the grass growth rate and $\mu$ be the grass comsumption rate.
-
-$$\lambda=kN_g\left(1-\frac{N_g}{A}\right)$$
-
-$$\mu=\frac{NRN_g}{A}$$
-
-The Kolmogorov equations
-
-$$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
-
-with
-
-$$\mathbf{p}(t)=[p_0(t), p_1(t), p_2(t) \dots p_A(t)]$$
-
-$$p_x(t)=\Pr(N_g(t)=x)$$
-
-$$\dot{\mathbf{p}}=\frac{d\mathbf{p}}{dt}$$
-
-$$\mathbf{R}=
-\begin{bmatrix}
-    r_{0,0} & r_{0,1} & r_{0,2} & \cdots & r_{0,A}\\
-    r_{1,0} & r_{1,1} & r_{1,2} & \cdots & r_{1,A}\\
-    r_{2,0} & r_{2,1} & r_{2,2} & \cdots & r_{2,A}\\
-    \vdots & \vdots & \vdots & \ddots & \vdots\\
-    r_{A,0} & r_{A,1} & r_{A,2} & \cdots & r_{A,A}
-\end{bmatrix}$$
-
-$$r_{i,j}=\begin{cases}
-    r_{0,j}=0\\
-    r_{i,i+1}=\lambda\\
-    r_{i+1,i}=\mu\\
-    r_{i,i}=-\lambda-\mu
-\end{cases}
-$$
-
+\end{thebibliography}
 
 \end{document}
