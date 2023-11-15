@@ -276,7 +276,7 @@ If $n_r$ is the number of grass blocks that regrew, and $n_e$ is the number that
 
 $$\Delta N_g = n_r-n_e$$
 
-The probability distribution of the difference of two Poisson-distributed variables $n_1$ and $n_2$, with expected values $m_1$ and $m_2$, is given by the Skellam distribution (reference):
+The probability distribution of the difference of two Poisson-distributed variables $n_1$ and $n_2$, with expected values $m_1$ and $m_2$, is given by the Skellam distribution \cite{skellam46}:
 
 $$\Pr(n_1-n_2=x)=e^{-(m_1+m_2)}\left(\frac{m_1}{m_2}\right)^{\frac{x}{2}}I_x(2\sqrt{m_1m_2})$$
 
@@ -312,7 +312,7 @@ This looks like a convolution of the distribution of $N_g$ with the distribution
 Although this effort is becoming mathematically intractible, a numerical solution is still well within the realm of possiblity. If the distribution of $N_g$ is known at $t=t_0$, the probability of all possible paths can be calculated to get the distribution of $N_g$ at $t=t_0+\Delta t$, and then for $t=t_0+2\Delta t$, $t=t_0+3\Delta t$, and so on.
 
 \begin{thebibliography}{1}
-    \bibitem{skellam} Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations.
+    \bibitem{skellam46} Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations.
 
 \end{thebibliography}
 
