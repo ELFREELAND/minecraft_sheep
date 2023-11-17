@@ -1,8 +1,13 @@
 \documentclass{article}
 \title{Modelling the Efficiency of a Sheep Pasture in Minecraft}
 \author{Evan Freeland}
-\usepackage{amsmath}
-\usepackage{graphicx}
+\usepackage{mathmag}
+
+\usepackage{amsmath,amsthm}     
+\usepackage{graphicx}     
+\usepackage{hyperref} 
+\usepackage{url}
+\usepackage{amsfonts} 
 \date{\today}
 
 \begin{document}
@@ -18,7 +23,10 @@
 Canonically, one block is one cubic meter. 
 
 \section{Deterministic model}
-\subsection{Grass consumption by sheep}
+
+%explain deterministic model and fast v slow
+
+\subsection{Grass mechanics}
 Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to eat will only succeed if it is standing on a grass block. A pasture containing $N$ sheep, consisting of $A$ blocks, $N_g$ of which are grass, will lose grass at a rate
 
 \begin{equation}
@@ -28,7 +36,6 @@ Sheep attempt to eat at a rate $R$ [s\textsuperscript{-1}]. A sheep's attempt to
 
 as it is eaten by sheep. This assumes that the sheep are distributed uniformly so that the probability of any sheep standing on a grass block is equal to the grass cover of the pasture.
 
-\subsection{Grass growth}
 The rate at which grass grows not as simple. If $N_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $N_g$ is large, grass growth will be limited by a lack of places for the grass to spread \textit{to}. We will employ a logistic model, where population follows the differential equation:
 
 $$\dot{y}=ky\left(1-\frac{y}{p}\right)$$
@@ -43,8 +50,6 @@ The logistic model is one of the oldest models for population growth. It was bor
 \end{equation}
 
 Where k [s\textsuperscript{-1}] is a constant as described above.
-
-\subsection{The fast farmer}
 
 In the presence of sheep, $\dot{N}_g$ is also affected by the sheep's appetite. Combining equations (\ref{sheep_eat}) and (\ref{grass_regrow}) leads to the following differential equation:
 
@@ -63,6 +68,8 @@ A little algebra gives the equilibrium grass population:
     \label{grass_cover}
     N_g=A-\frac{NR}{k}
 \end{equation}
+
+\subsection{The fast farmer}
 
 Let's define $F$ [s\textsuperscript{-1}] as the rate at which the farmer gathers wool. If the farmer is shearing the sheep as fast as they eat, $F$ is equal to the expression in (\ref{sheep_eat}). Combining (\ref{sheep_eat}) and (\ref{grass_cover}):
 
@@ -146,7 +153,7 @@ Plugging this back into (\ref{fslow}), we get
 
 $$F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}$$
 
-\section{Experimental determination of rate constants}
+\subsection{Experimental determination of rate constants}
 
 Before proceeding further, it's worth determining the actual values of $k$ and $R$. This will be done via in-game experiments, which will be described briefly here. More detail can be found on the author's github\footnote{github.com/ELFREELAND/minecraft\_sheep}.
 
@@ -161,10 +168,11 @@ The best fit gave $k=0.00773.$ The data and fit are compared in Figure \ref{fig:
 \begin{figure}[h]
     \caption{Logistic model fit to grass growth data}
     \label{fig:grass_logistic_fit}
-    \includegraphics[width=\textwidth]{grass_growth/grass_logistic}
+    \includegraphics[]{grass_growth/grass_logistic}
+    \centering
 \end{figure}
 
-\section{Deterministic model discussion}
+\subsection{Discussion}
 
 Figure \ref{fig:ffast} shows $F_{fast}$ and $N_g$ as a function of $N$, normalized for pasture area. These are simple curves,a parabola and straight line respectively, but there are a few important features to glean. First, the equilibrium $N_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
 
@@ -173,7 +181,8 @@ Second, the maximum $F_{fast}$ occurs at $N_g=0.5A$. This is a feature of the lo
 \begin{figure}[h]
     \caption{Plot of $\frac{F_{fast}}{A}$ and $\frac{N_g}{A}$ as a function of N.}
     \label{fig:ffast}
-    \includegraphics[width=\textwidth]{f_fast}
+    \includegraphics[]{f_fast}
+    \centering
 \end{figure}
 
 Figure \ref{fig:fslow} shows $F_{slow}$ as a function of $N$ and $T$. For the case of $T=1$, $F_{slow}$ follows the same parabolic pattern with respect to $N$ as $F_{fast}$. We can see this algebraically by employing the following approximation, for small $x$:
@@ -194,11 +203,11 @@ Physically, this represents conditions for which all of the sheep have regrown t
 
 Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}.
 
-\begin{figure}[h]
+\begin{figure}[h!]
     \caption{Plots of $\frac{F_{slow}}{A}$ as a function of N at constant T, and T at constant N.}
     \label{fig:fslow}
-    \includegraphics[width=\textwidth]{f_slow_na_t}
-    \includegraphics[width=8cm]{f_slow_contour}
+    \includegraphics[]{f_slow_na_t}
+    \includegraphics[]{f_slow_contour}
     \centering
 \end{figure}
 
@@ -206,6 +215,7 @@ Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fsl
 
 We will develop a stochastic model for the grass population in the pasture using Kolmogorov equations. This approach for population modelling is described in more detail in (REF), but the key elements will be outlined here.
 
+\subsection{Kolmogorov equations}
 In the deterministic model, we considered the grass population as a single number, $N_g$, which evolved with time. In the stochastic approach, we will consider the evolution of the \textit{probability distribution} of $N_g$ with time.
 
 We'll introduce the following notation:
@@ -225,6 +235,8 @@ Note that both $\lambda$ and $\mu$ are functions of $N_g$.
 Kolmogorov equations describe the evolution of a probability distribution with time. In our case, we will have a set of ordinary differential equations of the form:
 
 $$\dot{p}_x(t)=-p_x(t)(\lambda(x)+\mu(x))+p_{x-1}(t)\lambda(x-1)+p_{x+1}(t)\mu(x+1)$$
+
+\subsection{Key assumptions}
 
 There are a few important things to note. First, every possible value of $x$ will have its own equation, meaning we will have a system of $A+1$ equations. Second, this is a continuous-time model. The process of developing this model involves considering a change in $p_x$ from time $t$ to time $t+\Delta t$ and taking the limit as $\Delta t\rightarrow0$. In the process of taking this limit, the probability of multiple events occuring in time $\Delta t$ (e.g. multiple sheep eating or multiple grass blocks regrowing) approaches zero. A continuous time model is appropriate for real-world ecology, but the physics engine of \textit{Minecraft} operates in discretized time intervals, called \textit{ticks}, of $0.05$ seconds. Taking the limit of $\Delta t\rightarrow0$ therefore loses out on the very real possibility of multiple events occuring in a single tick. This limitation will be addressed later.
 
@@ -260,6 +272,8 @@ $$r_{i,j}=\begin{cases}
 $$
 
 All that's left to do now is to pick a value for $N$ and an initial value for $N_g$ and solve. This is most easily done numerically
+
+\subsection{Discussion}
 
 \subsection{Unsimplified model}
 The physics engine of \textit{Minecraft} operates in time intervals of 0.05 seconds. Therefore the model discussed here will use discrete time intervals $\Delta t=0.05$
