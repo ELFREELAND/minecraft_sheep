@@ -8,7 +8,7 @@
 \usepackage{hyperref} 
 \usepackage{url}
 \usepackage{amsfonts} 
-\date{\today}
+%\date{\today}
 
 \begin{document}
 \maketitle
@@ -20,6 +20,7 @@
 \section{Deterministic model}
 
 \textit{Minecraft} operates largely on chance. Both the growth of grass and the appetite of sheep is determined by random number generation. Every time the game's physics engine performs an update, grass has a chance to spread and sheep have a chance to eat. The grass population of the pasture is therefore governed by stochastic processes. Modelling stochastic processes is no simple task, so we will make a first attempt at modelling by assuming the pasture evolves according to deterministic, continuous-time processes.
+
 \subsection{Grass mechanics}
 
 The \textit{Minecraft} physics engine operates in discrete increments of time, called \textit{ticks}. Every tick, a sheep has a chance to attempt to eat the block it's standing on. If it's standing on grass, it will successfully eat the grass and convert it into dirt. If the sheep and grass in the pasture are uniformly distributed, the expected number of sheep standing on grass is the product of the number of sheep and the fraction of grass blocks in the pasture. The rate at which grass is eaten is therefore given by:
@@ -213,7 +214,10 @@ We'll also need to slightly reconsider the meanings of $\mu$ and $\lambda$. In t
 
 Using these new interpretations of $\mu$ and $\lambda$, we can write a system of differential equations describing the evolution of the probability distribusion of $N_g$ with time:
 
-$$\dot{p}_x(t)=-p_x(t)(\lambda(x)+\mu(x))+p_{x-1}(t)\lambda(x-1)+p_{x+1}(t)\mu(x+1)$$
+\begin{equation}
+    \label{p_dot}
+    \dot{p}_x(t)=-p_x(t)(\lambda(x)+\mu(x))+p_{x-1}(t)\lambda(x-1)+p_{x+1}(t)\mu(x+1)
+\end{equation}
 
 Note that $\mu(x)$ simply represnts the value of $\mu$ with $N_g=x$, and likewise for $\lambda$.
 
@@ -257,16 +261,7 @@ $$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
 
 All that's left to do now is to pick values for $N$ and $A$ and an initial value for $N_g$ and solve. This is most easily done numerically, as has been done here using the Runge-Kutta method.
 
-Let's begin by considering the equilibrium distribution of $N_g$. In the deterministic model, the grass population equilibrates when $\lambda=\mu$. In the stochastic model, we can approximate the equilibrium distribution by allowing the numerical solver to proceed for an arbitratily long time. We'll assume a pasture with $A=100$, beginning with $N_g(0)=A$, as is typical for a pasture in \textit{Minecraft}. Figure \ref{fig:eq_Ng} shows the expected value of $N_g$ after 10000 seconds, as a function of $N$, compared with the equilibrium grass population in the deterministic model.
-
-\begin{figure}
-    \caption{Expected value of $N_g$ at $t=10000$ vs. sheep population, for a pasture of $A=100$.}
-    \label{fig:eq_Ng}
-    \includegraphics{stochastic/expected_N_g_vs_N}
-    \centering
-\end{figure}
-
-It is immediately obvious from figure \ref{fig:eq_Ng} that the stochastic model deviates from the deterministic model for large populations of sheep. Compare the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture, shown in figure \ref{fig:evolution}. Both pastures begin with $N_g=1$, i.e. $\textbf{p}=[0, 0, 0, \dots 0, 1]$. The pasture with $N=40$ approaches a stable state, evidenced by the indistinguishable distributions at $t=1600$ s and $t=9500$ s. In contrast, the pasture with $N=70$ continues evolving toward smaller and smaller grass populations, with $p_0$ increasing dramatically as time proceeds.
+Figure \ref{fig:evolution} shows the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture. Both pastures begin with $N_g=1$, i.e. $\textbf{p}=[0, 0, 0, \dots 0, 1]$. The pasture with $N=40$ approaches a stable state, evidenced by the indistinguishable distributions at $t=1600$ s and $t=9500$ s. In contrast, the pasture with $N=70$ continues evolving toward smaller and smaller grass populations, with $p_0$ increasing dramatically as time proceeds.
 
 \begin{figure}
     \caption{Evolution of $p_x$ distribution for a pasture of size $A=100$, for (a) $N=40$ and (b) $N=70$.}
@@ -275,15 +270,15 @@ It is immediately obvious from figure \ref{fig:eq_Ng} that the stochastic model 
     \centering
 \end{figure}
 
+We can already see the stochastic model deviating from the deterministic model. A pasture with $N/A=0.7$ equilibrates at $N_g=0.196A$ in the deterministic model, but the stochastic model is predicting a high likelihood of complete extinction on the time scale of a few hours.
+
 The reason for this isn't hard to see by considering the equation for $\dot{p}_0$:
 
 $$\dot{p}_0(t)=p_1(t)\mu(1)$$
 
 Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium distribution is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may reach a different \textit{metastable} state if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}(a). The distribution for $N=40$ \textquotedblleft{}stabilizes\textquotedblright{} with a value of $p_1$ so low that $\dot{p}_0$ remains negligible.
 
-This poses a problem. We have seen from the slow farmer deterministic model that the optimal population of sheep increases as $T$ increases. We have also seen from the stochastic model that the probability of extinction increases more quickly for large sheep populations. For example, figure \ref{fig:fslow_optimal} shows that the optimal population of sheep for $T=2000$ is over $0.7A$, but figure \ref{fig:evolution}(b) shows that a pasture with $A=100$ and $N=70$ will likely become extinct within a few hours.
-
-Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
+Grass extinction at high sheep densities poses a problem since the deterministic model predicts that the optimal sheep density increases as $T$ increases for the slow farmer. Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
 
 $$\mathbf{M}=-(\mathbf{R}^\dagger)^{-1}$$
 
@@ -300,6 +295,26 @@ We can apply this solution to obtain the ETE for any value of $N$ and $A$\footno
     \centering
 \end{figure}
 
+Let's now turn our attention to the metastable, or quasi-equilibrium, state of the pasture. The pasture will cease evolving when all $\dot{p}_x=0$. This implies that the likelihood of the pasture having $N_g=x$ and losing one grass block equals the probability of $N_g=x-1$ and growing one grass block \cite{bartlet_gower_leslie}. In symbols:
+
+\begin{equation}
+    \label{recursive_relation}
+    p_x\mu(x)=p_{x-1}\lambda(x-1)
+\end{equation}
+
+We will assume $N_g=0$ is an unreachable state and exclude it from consideration. Writing (\ref{recursive_relation}) for $2\leq x\leq A$ and combining with the normalization condition, we obtain a system of $A$ equations in $A$ variables:
+
+\begin{equation}
+    \label{quasi_eq_system}
+    \begin{cases}
+        p_2\mu(2)-p_1\lambda(1)=0\\
+        p_3\mu(3)-p_2\lambda(2)=0\\
+        \dots\\
+        p_A\mu(A)=p_{A-1}\lambda(A-1)=0\\
+        \sum_{x=1}^{A}p_x=1
+    \end{cases}
+\end{equation}
+
 \subsection{Limitations and potential improvements}
 
 \section{Conclusion}
@@ -311,6 +326,8 @@ We can apply this solution to obtain the ETE for any value of $N$ and $A$\footno
     \bibitem{skellam} Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations.
 
     \bibitem{matis_wehrly_metzler} Matis, J., Wehrly, T., Metzler, C. On Some Stochastic Formulations and Related Statistical Moments of Pharmacokinetic Models.
+
+    \bibitem{bartlet_gower_leslie} M. S. Bartlett, J. C. Gower, and P. H. Leslie, A comparison of theoretical and empirical results for some stochastic population models, Biometrika 47: 1-11 (1960).
 
 \end{thebibliography}
 
