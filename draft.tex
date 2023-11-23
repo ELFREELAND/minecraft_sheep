@@ -1,5 +1,5 @@
 \documentclass{article}
-\title{Modelling the Efficiency of a Sheep Pasture in Minecraft}
+\title{Modelling the Efficiency of a Sheep Pasture in \textit{Minecraft}}
 \author{Evan Freeland}
 \usepackage{mathmag}
 
@@ -19,8 +19,7 @@
 
 \section{Deterministic model}
 
-%explain deterministic model and fast v slow
-\textit{Minecraft} operates largely on chance. Both the growth of grass and the appetite of sheep is determined by random number generation. Every time the game's physics engine performs an update, grass has a chance to spread and sheep have a chance to eat. The behavior of the pasture is therefore governed by stochastic processes. Modelling stochastic processes is no simple task, so we will make a first attempt at modelling by assuming the pasture evolves according to deterministic, continuous-time processes.
+\textit{Minecraft} operates largely on chance. Both the growth of grass and the appetite of sheep is determined by random number generation. Every time the game's physics engine performs an update, grass has a chance to spread and sheep have a chance to eat. The grass population of the pasture is therefore governed by stochastic processes. Modelling stochastic processes is no simple task, so we will make a first attempt at modelling by assuming the pasture evolves according to deterministic, continuous-time processes.
 \subsection{Grass mechanics}
 
 The \textit{Minecraft} physics engine operates in discrete increments of time, called \textit{ticks}. Every tick, a sheep has a chance to attempt to eat the block it's standing on. If it's standing on grass, it will successfully eat the grass and convert it into dirt. If the sheep and grass in the pasture are uniformly distributed, the expected number of sheep standing on grass is the product of the number of sheep and the fraction of grass blocks in the pasture. The rate at which grass is eaten is therefore given by:
@@ -61,6 +60,25 @@ At steady state, $\dot{N}_g=0$. Solving (\ref{combined_sheep_grass}) for $N_g$ w
     N_g=A-\frac{NR}{k}
 \end{equation}
 
+\subsection{Experimental determination of rate constants}
+
+Before proceeding further, it's worth determining the actual values of $k$ and $R$. This will be done via in-game experiments, which will be described briefly here. More detail can be found on the author's github\footnote{github.com/ELFREELAND/minecraft\_sheep}.
+
+Ten sheep were locked in cells with a grass block immediately underneath them. The cells included circuitry to count when each sheep ate the grass and automatically replenish it. In one hour, the sheep consumed 320 blocks of grass. This gives an R value of 0.00888 s\textsuperscript{-1}.
+
+A 30x30 patch of dirt was isolated from its surroundings and uniformly interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the exact solution of the logistic equation:
+
+$$y = \frac{p}{1+\left(\frac{p-y_0}{y_0}\right)e^{-kt}}$$
+
+The best fit gave $k=0.00773$ s\textsuperscript{-1}. The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
+
+\begin{figure}[h]
+    \caption{Logistic model fit to grass growth data.}
+    \label{fig:grass_logistic_fit}
+    \includegraphics[]{grass_growth/grass_logistic}
+    \centering
+\end{figure}
+
 \subsection{The fast farmer}
 
 For simplicity, let's imagine the farmer has superhuman speed, and is able to shear each sheep the instant it grows its wool. In this case, the rate at which wool is gathered is equal to $\mu$. Denoting the rate of wool gathering with $F$, and substituting (\ref{grass_cover}) into (\ref{sheep_eat}):
@@ -80,6 +98,17 @@ We can find the optimal sheep population by differentiating (\ref{ffast}) w.r.t.
 This is the sheep population which will produce the maximum wool output, if the farmer is significantly fast enough. At the optimal value of $N$, the rate of wool production is:
 
 $${F_{fast}=\frac{Ak}{4}}$$
+
+Figure \ref{fig:ffast} shows $F_{fast}$ and $N_g$ as a function of $N$, normalized for pasture area. These are simple curves, a parabola and straight line respectively, but there are a few important features to glean. First, the equilibrium $N_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, the grass in a pasture with $N>0.869A$ will become extinct.
+
+Second, the maximum $F_{fast}$ coincides with $N_g=0.5A$. This is a feature of the logistic model; population growth is greatest when the population is half of the carrying capacity.
+
+\begin{figure}[h]
+    \caption{Plot of $\frac{F_{fast}}{A}$ and $\frac{N_g}{A}$ as a function of N, normalized to pasture size.}
+    \label{fig:ffast}
+    \includegraphics[]{deterministic/f_fast}
+    \centering
+\end{figure}
 
 \subsection{The realistically slow farmer}
 
@@ -122,64 +151,35 @@ This is the expression for the rate of wool gathering by a slow farmer. To find 
 
 $$\frac{dF_{slow}}{dN}=\frac{1-\left(\frac{TR^2N}{Ak}+1\right)e^{-TR+\frac{TR^2N}{Ak}}}{T}=0$$
 
-And solving for $N$:
+Solving for $N$, we obtain the optimal value of $N$:
 
 \begin{equation}
     \label{fslow_optimal_n}
     N=\frac{Ak}{TR^2}(W(e^{TR+1})-1) 
 \end{equation}
 
-Where $W$ is the Lambert $W$ function, which satisfies $W(xe^x)=x$. Plugging this back into (\ref{fslow}):
+Where $W$ is the Lambert $W$ function, which satisfies $W(xe^x)=x$. Plugging this back into (\ref{fslow}), we obtain the value of $F_{slow}$ at optimal $N$:
 
-$$F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}$$
+\begin{equation}
+    \label{fslow_at_optimal_n}
+    F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}
+\end{equation}
 
-\subsection{Experimental determination of rate constants}
+Figure \ref{fig:fslow} shows a plot of (\ref{fslow}), and figure \ref{fig:fslow_optimal} shows plots of (\ref{fslow_optimal_n}) and (\ref{fslow_at_optimal_n}). As $T$ increases, the optimal sheep population also increases, and the optimal rate of wool gathering decreases. Clearly there is a tradeoff between the frequency with which the farmer shears the flock and the rate at which they gather wool.
 
-Before proceeding further, it's worth determining the actual values of $k$ and $R$. This will be done via in-game experiments, which will be described briefly here. More detail can be found on the author's github\footnote{github.com/ELFREELAND/minecraft\_sheep}.
+There are a couple important things to note about $F_{slow}$. First, compare the plot of $F_{fast}$ in figure \ref{fig:ffast} with the plot of $F_{slow}$ with $T=1$ in figure \ref{fig:fslow}(b) - they are almost identical. We can see this algebraically by employing the following approximation, for $x\ll 1$:
 
-Ten sheep were locked in cells with a grass block immediately underneath them. The cells included circuitry to count when each sheep ate the grass and automatically replenish it. In one hour, the sheep consumed 320 blocks of grass. This gives an R value of 0.00888 s\textsuperscript{-1}.
-
-A 30x30 patch of dirt was isolated from its surroundings and uniformly interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the exact solution of the logistic equation:
-
-$$y = \frac{p}{1+\left(\frac{p-y_0}{y_0}\right)e^{-kt}}$$
-
-The best fit gave $k=0.00773$ s\textsuperscript{-1}. The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
-
-\begin{figure}[h]
-    \caption{Logistic model fit to grass growth data.}
-    \label{fig:grass_logistic_fit}
-    \includegraphics[]{grass_growth/grass_logistic}
-    \centering
-\end{figure}
-
-\subsection{Discussion}
-
-Figure \ref{fig:ffast} shows $F_{fast}$ and $N_g$ as a function of $N$, normalized for pasture area. These are simple curves,a parabola and straight line respectively, but there are a few important features to glean. First, the equilibrium $N_g$ and $F_{fast}$ are both zero at $\frac{N}{A}=\frac{k}{R}=0.869$. Deterministically, a pasture with this density will lose all of its grass.
-
-Second, the maximum $F_{fast}$ occurs at $N_g=0.5A$. This is a feature of the logistic model; population growth is greatest when the population is half of the carrying capacity.
-
-\begin{figure}[h]
-    \caption{Plot of $\frac{F_{fast}}{A}$ and $\frac{N_g}{A}$ as a function of N.}
-    \label{fig:ffast}
-    \includegraphics[]{deterministic/f_fast}
-    \centering
-\end{figure}
-
-Figure \ref{fig:fslow} shows $F_{slow}$ as a function of $N$ and $T$. For the case of $T=1$, $F_{slow}$ follows the same parabolic pattern with respect to $N$ as $F_{fast}$. We can see this algebraically by employing the following approximation, for small $x$:
-
-$$e^x-1\approx x$$
+$$e^x\approx x+1$$
 
 In equation (\ref{fslow}), the exponent is small for small values of $T$, therefore:
 
-$$F_{slow}\approx NR-\frac{N^2R^2}{Ak}=F_{fast}$$
+$$F_{slow}\approx \frac{N-N(-TR+\frac{TR^2N}{Ak}+1)}{T}=NR-\frac{N^2R^2}{Ak}=F_{fast}$$
 
-For large values of T and modest values of N, $F_{slow}$ is approximately linear w.r.t. $N$. Algebraically, the term $e^{-TR(1-\frac{RN}{Ak})}\approx 0$ in (\ref{fslow}) for large negative values of the exponent. Under these conditions,
+Second, it appears in figure \ref{fig:fslow}(b) that for large values of T and modest values of N, $F_{slow}$ is approximately linear w.r.t. $N$. Under these conditions, the exponent $-TR+\frac{TR^2N}{Ak}$ in (\ref{fslow}) is large and negative, and:
 
-$$F_{slow}\approx \frac{N\left(1-0\right)}{T}=\frac{N}{T}$$
+$$F_{slow}\approx \frac{N-0}{T}=\frac{N}{T}$$
 
 Physically, this represents conditions for which all of the sheep have regrown their wool by the time the farmer comes back to harvest, so the farmer is simply gathering $N$ blocks of wool with every harvest. Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}(a).
-
-%make this figure have a b c
 
 \begin{figure}[h]
     \caption{(a) Heatmap plot of $F_{slow}$ as a function of T and N. (b) Contours of $F_{slow}$ as a function of N at constant T.}
@@ -189,11 +189,18 @@ Physically, this represents conditions for which all of the sheep have regrown t
     \centering
 \end{figure}
 
+\begin{figure}
+    \caption{Optimal sheep population and maximum wool production as a function of $T$, normalized to pasture size.}
+    \label{fig:fslow_optimal}
+    \includegraphics{deterministic/optimal_na}
+    \centering
+\end{figure}
+
 \section{Stochastic model}
 
 The deterministic model gives valuable insight into the expected behavior of the pasture, but a more complete picture can be obtained by developing a stochastic model which captures the randomness inherent in the physics engine of \textit{Minecraft}. We will develop a stochastic model for the grass population in the pasture using Kolmogorov equations. This approach for population modelling is described in more detail in \cite{matis_kiffe}, but the key elements will be outlined here.
 
-\subsection{Kolmogorov equations}
+\subsection{Grass Mechanics}
 In the deterministic model, we considered the grass population as a single number, $N_g$, which evolved with time. In the stochastic approach, we will consider the evolution of the \textit{probability distribution} of $N_g$ with time.
 
 We'll introduce the following notation:
@@ -216,15 +223,15 @@ There are a couple of special cases to address, namely, the cases of $\dot{p}_0$
 
 $$\dot{p}_0(t)=p_1(t)\mu(1)$$
 
-$$\dot{p}_A(t)=-p_A(t)(\lambda(A)+\mu(A))+p_{A-1}(t)\mu(A-1)$$
+$$\dot{p}_A(t)=-p_A(t)(\lambda(A)+\mu(A))+p_{A-1}(t)\lambda(A-1)$$
 
-We'll wrap up the system into vector form for convenient expression:
+We'll wrap up the system into vector form for convenient expression. Let $\mathbf{p}$ be a vector of $p_x$, and $\dot{\mathbf{p}}$ its derivative:
 
 $$\mathbf{p}(t)=[p_0(t), p_1(t), p_2(t) \dots p_A(t)]$$
 
 $$\dot{\mathbf{p}}(t)=\frac{d\mathbf{p}}{dt}=[\dot{p}_0(t), \dot{p}_1(t), \dot{p}_2(t) \dots \dot{p}_A(t)]$$
 
-$$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
+Let $\mathbf{R}$ be a matrix of coefficients relating $\mathbf{p}$ and $\dot{\mathbf{p}}$:
 
 $$\mathbf{R}=
 \begin{bmatrix}
@@ -239,13 +246,27 @@ $$r_{i,j}=\begin{cases}
     r_{0,j}=0\\
     r_{i,i+1}=\lambda(i)\\
     r_{i+1,i}=\mu(i)\\
-    r_{i,i}=-(\lambda(i)+\mu(i))
+    r_{i,i}=-(\lambda(i)+\mu(i))\\
+    0\;\;\mathrm{otherwise}
 \end{cases}
 $$
 
-All that's left to do now is to pick a value for $N$ and an initial value for $N_g$ and solve. This is most easily done numerically, as has been done here using the Runge-Kutta method.
+Then:
 
-\subsection{Discussion}
+$$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
+
+All that's left to do now is to pick values for $N$ and $A$ and an initial value for $N_g$ and solve. This is most easily done numerically, as has been done here using the Runge-Kutta method.
+
+Let's begin by considering the equilibrium distribution of $N_g$. In the deterministic model, the grass population equilibrates when $\lambda=\mu$. In the stochastic model, we can approximate the equilibrium distribution by allowing the numerical solver to proceed for an arbitratily long time. We'll assume a pasture with $A=100$, beginning with $N_g(0)=A$, as is typical for a pasture in \textit{Minecraft}. Figure \ref{fig:eq_Ng} shows the expected value of $N_g$ after 10000 seconds, as a function of $N$, compared with the equilibrium grass population in the deterministic model.
+
+\begin{figure}
+    \caption{Expected value of $N_g$ at $t=10000$ vs. sheep population, for a pasture of $A=100$.}
+    \label{fig:eq_Ng}
+    \includegraphics{stochastic/expected_N_g_vs_N}
+    \centering
+\end{figure}
+
+It is immediately obvious from figure \ref{fig:eq_Ng} that the stochastic model deviates from the deterministic model for large populations of sheep. Compare the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture, shown in figure \ref{fig:evolution}. Both pastures begin with $N_g=1$, i.e. $\textbf{p}=[0, 0, 0, \dots 0, 1]$. The pasture with $N=40$ approaches a stable state, evidenced by the indistinguishable distributions at $t=1600$ s and $t=9500$ s. In contrast, the pasture with $N=70$ continues evolving toward smaller and smaller grass populations, with $p_0$ increasing dramatically as time proceeds.
 
 \begin{figure}
     \caption{Evolution of $p_x$ distribution for a pasture of size $A=100$, for (a) $N=40$ and (b) $N=70$.}
@@ -253,73 +274,43 @@ All that's left to do now is to pick a value for $N$ and an initial value for $N
     \includegraphics{stochastic/evolution}
     \centering
 \end{figure}
-%p_0
+
+The reason for this isn't hard to see by considering the equation for $\dot{p}_0$:
+
+$$\dot{p}_0(t)=p_1(t)\mu(1)$$
+
+Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium distribution is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may reach a different \textit{metastable} state if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}(a). The distribution for $N=40$ \textquotedblleft{}stabilizes\textquotedblright{} with a value of $p_1$ so low that $\dot{p}_0$ remains negligible.
+
+This poses a problem. We have seen from the slow farmer deterministic model that the optimal population of sheep increases as $T$ increases. We have also seen from the stochastic model that the probability of extinction increases more quickly for large sheep populations. For example, figure \ref{fig:fslow_optimal} shows that the optimal population of sheep for $T=2000$ is over $0.7A$, but figure \ref{fig:evolution}(b) shows that a pasture with $A=100$ and $N=70$ will likely become extinct within a few hours.
+
+Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
+
+$$\mathbf{M}=-(\mathbf{R}^\dagger)^{-1}$$
+
+The sum of the $i$th row of $\mathbf{M}$ gives the total time spent with nonzero population before becoming extinct, given the pasture started with $N_g=j$. The typical \textit{Minecraft} pasture begins fully populated with grass, i.e. $N_g(0)=A$. Therefore the value we are interested in is:
+
+$$ETE=\sum_{j}m_{Aj}$$
+
+We can apply this solution to obtain the ETE for any value of $N$ and $A$\footnote{Although, floating point arithmetic may become a problem for small population densities as the numbers involved become extremely large.}. Figure \ref{fig:ext_time} shows the ETE for pastures of $A=100$ and $A=500$ as a function of sheep population density. For populations close to the deterministic sheep population limit $\frac{N}{A}=\frac{k}{R}=0.869$, the ETE is on the order of a few hours. As the sheep population density decreases, the ETE increases dramatically. For a 100 block pasture with a population density of 0.5, the ETE is on the order of several years.
 
 \begin{figure}
-    \caption{expected value of $N_g$ at $t=10000$ vs. sheep population.}
-    \includegraphics{stochastic/expected_N_g_vs_N}
+    \caption{Expected time to extinction for pastures of $A=100$ and $A=500$ as a function of sheep population density.}
+    \label{fig:ext_time}
+    \includegraphics{stochastic/ext_time}
     \centering
 \end{figure}
 
 \subsection{Limitations and potential improvements}
 
-This is a continuous-time model. The process of developing this model involves considering a change in $p_x$ from time $t$ to time $t+\Delta t$ and taking the limit as $\Delta t\rightarrow0$. In the process of taking this limit, the probability of multiple events occuring in time $\Delta t$ (e.g. multiple sheep eating or multiple grass blocks regrowing) approaches zero. A continuous time model is appropriate for real-world ecology, but the physics engine of \textit{Minecraft} operates in discretized time intervals, called \textit{ticks}, of $0.05$ seconds. Taking the limit of $\Delta t\rightarrow0$ therefore loses out on the very real possibility of multiple events occuring in a single tick.
-
-\subsection{Unsimplified model}
-The physics engine of \textit{Minecraft} operates in time intervals of 0.05 seconds. Therefore the model discussed here will use discrete time intervals $\Delta t=0.05$
-
-Within time $\Delta t$, a sheep has a chance $\frac{RN_g}{A}\Delta t$ to eat. For a pasture with $N$ sheep, the number of sheep that eat in time $\Delta t$ is a binomial random variable of $N$ trials and $\frac{RN_g}{A}\Delta t$ success probability.
-
-The law of rare events states that a binomial distribution with a large number of events $n$ and a small probability of success $p$ can be approximated by a Poisson distribution with expected value $np$. We can use this to replace the above binomial distribution with a simpler Poisson distribution, with expected value $\frac{NRN_g}{A}\Delta t$.
-
-%need to explain why LRE is valid
-
-Similarly, we can model grass growth with a Poisson distribution. The probability that the grass population changes by an amount $\Delta_rN_g$ in time $\Delta t$ due to grass regrowth is a poisson distribution with expected value $\dot{N}_g\Delta t=kN_g\left(1-\frac{N_g}{A}\right)\Delta t$, as given by (\ref{grass_regrow}).
-
-If $n_r$ is the number of grass blocks that regrew, and $n_e$ is the number that were eaten by sheep, the overall change in $N_g$ is given by:
-
-$$\Delta N_g = n_r-n_e$$
-
-The probability distribution of the difference of two Poisson-distributed variables $n_1$ and $n_2$, with expected values $m_1$ and $m_2$, is given by the Skellam distribution \cite{skellam46}:
-
-$$\Pr(n_1-n_2=x)=e^{-(m_1+m_2)}\left(\frac{m_1}{m_2}\right)^{\frac{x}{2}}I_x(2\sqrt{m_1m_2})$$
-
-Where $I_x$ is a modified bessel function of the first kind of order $x$.
-
-Therefore, $\Delta N_g$ is dictated by a Skellam distribution with
-
-$$\mu_1=kN_g\left(1-\frac{N_g}{A}\right)\Delta t$$
-
-$$\mu_2=\frac{NRN_g}{A}\Delta t$$
-
-Let's consider a pasture at $N_g=x$ at time $t_0$, i.e., $N_g(t_0)=x$. The probability that the pasture ends up in the state $N_g(t+\Delta t)=x+\Delta N_g$ is given by the probability of a change $\Delta N_g$ times the probability of the state $N_g(t_0)=x$.
-
-However, the pasture may arrive at the same value of $N_g$ through multiple paths. For example, All of the following paths would lead to $N_g(t+\Delta t)=100$:
-
-\begin{samepage}
-    \begin{itemize}
-        \item $N_g(t_0)=100$ and $\Delta N_g=0$
-        \item $N_g(t_0)=101$ and $\Delta N_g=-1$
-        \item $N_g(t_0)=102$ and $\Delta N_g=-2$
-        \item $N_g(t_0)=99$ and $\Delta N_g=+1$
-        \item \dots
-        \item $N_g(t_0)=100+n$ and $\Delta N_g=-n$
-    \end{itemize}
-\end{samepage}
-
-And so on. The probability of each path is the probability of the initial state existing, times the probability of the value of $\Delta N_g$. In general the probability of the state $N_g(t_0+\Delta t)=x+n$ is the sum of the probabilities of all the paths that lead there, i.e. paths for which the initial state is $N_g(t_0)=x$ and $\Delta N_g=n$, for any value of $n$:
-
-$$\Pr(N_g(t_0+\Delta t)=x+n)=\sum_{n}\Pr(N_g(t_0)=x)\Pr(\Delta N_g=n)$$
-
-This looks like a convolution of the distribution of $N_g$ with the distribution of $\Delta N_g$. However, this is not a simple convolution, as the distribution of $\Delta N_g$ is dependent on the value of $N_g$.
-
-Although this effort is becoming mathematically intractible, a numerical solution is still well within the realm of possiblity. If the distribution of $N_g$ is known at $t=t_0$, the probability of all possible paths can be calculated to get the distribution of $N_g$ at $t=t_0+\Delta t$, and then for $t=t_0+2\Delta t$, $t=t_0+3\Delta t$, and so on.
+\section{Conclusion}
 
 \begin{thebibliography}{1}
 
     \bibitem{matis_kiffe} Matis, J., Kiffe, T. Stochastic Population Models: a Compartmental Perspective.
 
-    \bibitem{skellam46} Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations.
+    \bibitem{skellam} Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations.
+
+    \bibitem{matis_wehrly_metzler} Matis, J., Wehrly, T., Metzler, C. On Some Stochastic Formulations and Related Statistical Moments of Pharmacokinetic Models.
 
 \end{thebibliography}
 
