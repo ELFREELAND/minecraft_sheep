@@ -121,9 +121,13 @@ $$F_{slow}=\frac{N_w}{T}$$
 
 Now we need to consider the value of $N_w$. A sheep will only regrow wool upon eating if it doesn't already have any, so we should expect that the rate at which sheep are regrowing wool is the rate at which they are eating, $\mu$, times the fraction of sheep that are wool-less:
 
-$$\dot{N}_w=\frac{N-N_w}{N}\mu=(N-N_w)\frac{RN_g}{A}$$
+\begin{equation}
+    \label{n_dot}
+    \dot{N}_w=\frac{N-N_w}{N}\mu=(N-N_w)\frac{RN_g}{A}
+\end{equation}
 
-At time $t=0$, the farmer shears all the sheep, leaving them with $N_w=0$, and then at time $t=T$, the farmer comes back and shears them again, gathering $N_w$ blocks of wool. How many sheep grew their wool back in time $T$? We can find out by solving the above equation for $N_w$. We'll separate it into $N_w$ terms and non $N_w$ terms:
+
+At time $t=0$, the farmer shears all the sheep, leaving them with $N_w=0$, and then at time $t=T$, the farmer comes back and shears them again, gathering $N_w$ blocks of wool. How many sheep grew their wool back in time $T$? We can find out by solving (\ref{n_dot}) for $N_w$. We'll separate it into $N_w$ terms and non $N_w$ terms:
 
 $$\frac{1}{N-N_w}dN_w=\frac{RN_g}{A}dt$$
 
@@ -168,7 +172,7 @@ Where $W$ is the Lambert $W$ function, which satisfies $W(xe^x)=x$. Plugging thi
 
 Figure \ref{fig:fslow} shows a plot of (\ref{fslow}), and figure \ref{fig:fslow_optimal} shows plots of (\ref{fslow_optimal_n}) and (\ref{fslow_at_optimal_n}). As $T$ increases, the optimal sheep population also increases, and the optimal rate of wool gathering decreases. Clearly there is a tradeoff between the frequency with which the farmer shears the flock and the rate at which they gather wool.
 
-There are a couple important things to note about $F_{slow}$. First, compare the plot of $F_{fast}$ in figure \ref{fig:ffast} with the plot of $F_{slow}$ with $T=1$ in figure \ref{fig:fslow}(b) - they are almost identical. We can see this algebraically by employing the following approximation, for $x\ll 1$:
+There are a couple important things to note about $F_{slow}$. First, compare the plot of $F_{fast}$ in figure \ref{fig:ffast} with the plot of $F_{slow}$ with $T=1$ in figure \ref{fig:fslow}b - they are almost identical. We can see this algebraically by employing the following approximation, for $x\ll 1$:
 
 $$e^x\approx x+1$$
 
@@ -176,11 +180,11 @@ In equation (\ref{fslow}), the exponent is small for small values of $T$, theref
 
 $$F_{slow}\approx \frac{N-N(-TR+\frac{TR^2N}{Ak}+1)}{T}=NR-\frac{N^2R^2}{Ak}=F_{fast}$$
 
-Second, it appears in figure \ref{fig:fslow}(b) that for large values of T and modest values of N, $F_{slow}$ is approximately linear w.r.t. $N$. Under these conditions, the exponent $-TR+\frac{TR^2N}{Ak}$ in (\ref{fslow}) is large and negative, and:
+Second, it appears in figure \ref{fig:fslow}b that for large values of T and modest values of N, $F_{slow}$ is approximately linear w.r.t. $N$. Under these conditions, the exponent $-TR+\frac{TR^2N}{Ak}$ in (\ref{fslow}) is large and negative, and:
 
 $$F_{slow}\approx \frac{N-0}{T}=\frac{N}{T}$$
 
-Physically, this represents conditions for which all of the sheep have regrown their wool by the time the farmer comes back to harvest, so the farmer is simply gathering $N$ blocks of wool with every harvest. Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}(a).
+Physically, this represents conditions for which all of the sheep have regrown their wool by the time the farmer comes back to harvest, so the farmer is simply gathering $N$ blocks of wool with every harvest. Lines of $\frac{N}{T}$ are plotted over top of the curves in figure \ref{fig:fslow}a.
 
 \begin{figure}[h]
     \caption{(a) Heatmap plot of $F_{slow}$ as a function of T and N. (b) Contours of $F_{slow}$ as a function of N at constant T.}
@@ -276,7 +280,9 @@ The reason for this isn't hard to see by considering the equation for $\dot{p}_0
 
 $$\dot{p}_0(t)=p_1(t)\mu(1)$$
 
-Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium distribution is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may reach a different \textit{metastable} state if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}(a). The distribution for $N=40$ \textquotedblleft{}stabilizes\textquotedblright{} with a value of $p_1$ so low that $\dot{p}_0$ remains negligible.
+Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium distribution is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may reach a different \textit{metastable} state if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}a. The distribution for $N=40$ \textquotedblleft{}stabilizes\textquotedblright{} with a value of $p_1$ so low that $\dot{p}_0$ remains negligible.
+
+This raises two obvious questions: First, what is the expected time to extinction, i.e. how high can $N$ be without causing a significant increase in $p_0$ over reasonable time scales? Second, for pastures where $\dot{p}_0$ is negligible, what is the metastable distribution of $N_g$? We'll examine grass extinction first.
 
 Grass extinction at high sheep densities poses a problem since the deterministic model predicts that the optimal sheep density increases as $T$ increases for the slow farmer. Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
 
@@ -284,12 +290,12 @@ $$\mathbf{M}=-(\mathbf{R}^\dagger)^{-1}$$
 
 The sum of the $i$th row of $\mathbf{M}$ gives the total time spent with nonzero population before becoming extinct, given the pasture started with $N_g=j$. The typical \textit{Minecraft} pasture begins fully populated with grass, i.e. $N_g(0)=A$. Therefore the value we are interested in is:
 
-$$ETE=\sum_{j}m_{Aj}$$
+$$\mathrm{ETE}=\sum_{j}m_{Aj}$$
 
-We can apply this solution to obtain the ETE for any value of $N$ and $A$\footnote{Although, floating point arithmetic may become a problem for small population densities as the numbers involved become extremely large.}. Figure \ref{fig:ext_time} shows the ETE for pastures of $A=100$ and $A=500$ as a function of sheep population density. For populations close to the deterministic sheep population limit $\frac{N}{A}=\frac{k}{R}=0.869$, the ETE is on the order of a few hours. As the sheep population density decreases, the ETE increases dramatically. For a 100 block pasture with a population density of 0.5, the ETE is on the order of several years.
+We can apply this solution to obtain the ETE for any value of $N$ and $A$\footnote{Although, floating point arithmetic may become a problem for small population densities as the numbers involved become extremely large.}, as demonstrated in figure \ref{fig:ext_time}. For populations close to the deterministic sheep population limit $\frac{N}{A}=\frac{k}{R}=0.869$, the ETE is on the order of a few hours for all three pasture sizes. As the sheep population density decreases, the ETE increases dramatically - For a 100 block pasture with a sheep density of 0.5, the ETE is on the order of several years. ETE also increases dramatically with larger pastures - A 100-block pasture with sheep density 0.7 has ETE on the order of a few hours, while a 500-block pasture with the same density has ETE on the order of months.
 
 \begin{figure}
-    \caption{Expected time to extinction for pastures of $A=100$ and $A=500$ as a function of sheep population density.}
+    \caption{Expected time to extinction for pastures of $A=100$, $200$, and $500$ as a function of sheep population density.}
     \label{fig:ext_time}
     \includegraphics{stochastic/ext_time}
     \centering
@@ -315,7 +321,26 @@ We will assume $N_g=0$ is an unreachable state and exclude it from consideration
     \end{cases}
 \end{equation}
 
-\subsection{Limitations and potential improvements}
+We can solve (\ref{quasi_eq_system}) to obtain the metastable $N_g$ distribution. Figure \ref{fig:quasi_eq} shows the metastable distribution for a few select conditions, and figure \ref{fig:exp_and_std} shows the expected value and standard deviation of the metastable distribution as a function of sheep density. There are a few important features to note. First, figure \ref{fig:quasi_eq} shows both the metastable distribution predicted by (\ref{quasi_eq_system}) and numerical solutions of the Kolmogorov equations for $t=10000$. The results match in each case except for the case $A=100$, $N=65$. In that case, the numerical solution has already begin to approach extinction. This is the only case in which the metastable $p_1$ is significant, and it is also the only case in which $p_0$ is significant in the numerical solution. Intuitively, one might gather that for conditions where the metastable $p_1$ is significant, the pasture will not remain in the metastable state for long as $p_0$ will rapidly increase.
+
+This perspective can explain the variation of ETE with pasture size and sheep population. As N increases, the metastable distribution shifts to smaller values of $N_g$ (figure \ref{fig:exp_and_std}a) and broadens (figure \ref{fig:exp_and_std}b), both of which will increase $p_1$ and thereby $\dot{p}_0$. This is why larger sheep densities decrease ETE (figure \ref{fig:ext_time}).
+
+As pasture size increases at constant sheep population density, the relative width of the distribution decreases. What is meant by relative width here is the broadness of the distribution as a fraction of the width of its domain, which corresponds here to the standard deviation divided by $A$. Compare figure 
+\ref{fig:quasi_eq}a and \ref{fig:quasi_eq}b, and observe how the distributions for $A=500$ are visually narrower than those at $A=100$ for the same $\frac{N}{A}$. Of two pastures with the same $\frac{N}{A}$, the one with larger $A$ will have a narrower distribution, and therefore the expected $N_g$ can move to smaller values before $p_1$ becomes significant. This is why larger pasture sizes increase ETE (figure \ref{fig:ext_time}).
+
+Figure \ref{fig:exp_and_std}a shows that the expected metastable grass density is approximately the same as the equilibrium grass density from the deterministic model (compare figure \ref{fig:ffast}). This trend is present up to at least $\frac{N}{A}=0.5$ for the conditions chosen here, but already some deviation is visible for high sheep densities.
+
+\begin{figure}
+    \caption{Metastable $N_g$ distributions for pastures with (a) $A=100$ and (b) $A=500$. Numerical solutions for $p_x$ at $t=10000$ are shown as dotted lines.}
+    \label{fig:quasi_eq}
+    \includegraphics{stochastic/quasi_eq_comparison}
+\end{figure}
+
+\begin{figure}
+    \caption{(a) Expected grass population density and (b) standard deviation normalized to pasture size, as a function of sheep population density. The equilibrium grass density from the deterministic model is shown on (a) as a dotted line.}
+    \label{fig:exp_and_std}
+    \includegraphics{stochastic/exp_and_var}
+\end{figure}
 
 \section{Conclusion}
 
