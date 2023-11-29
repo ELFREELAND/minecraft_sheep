@@ -111,7 +111,7 @@ Second, the maximum $F_{fast}$ coincides with $N_g=0.5A$. This is a feature of t
     \centering
 \end{figure}
 
-\subsection{The realistically slow farmer}
+\subsection{The slow farmer}
 
 \textit{Minecraft} players typically don't want to put all of their time into shearing their sheep as quickly as they can. For a more realistic model, we'll assume the farmer shears all sheep at once, intermittently and at regular intervals.
 
@@ -284,7 +284,8 @@ Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing,
 
 This raises two obvious questions: First, what is the expected time to extinction, i.e. how high can $N$ be without causing a significant increase in $p_0$ over reasonable time scales? Second, for pastures where $\dot{p}_0$ is negligible, what is the metastable distribution of $N_g$? We'll examine grass extinction first.
 
-Grass extinction at high sheep densities poses a problem since the deterministic model predicts that the optimal sheep density increases as $T$ increases for the slow farmer. Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
+\subsubsection{Grass extinction}
+Rapid grass extinction at high sheep densities poses a problem, since the slow farmer deterministic model predicts that the optimal $N$ increases as $T$ increases (see figure \ref{fig:fslow_optimal}). Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
 
 $$\mathbf{M}=-(\mathbf{R}^\dagger)^{-1}$$
 
@@ -301,6 +302,7 @@ We can apply this solution to obtain the ETE for any value of $N$ and $A$\footno
     \centering
 \end{figure}
 
+\subsubsection{Metastable distribution}
 Let's now turn our attention to the metastable, or quasi-equilibrium, state of the pasture. The pasture will cease evolving when all $\dot{p}_x=0$. This implies that the likelihood of the pasture having $N_g=x$ and losing one grass block equals the probability of $N_g=x-1$ and growing one grass block \cite{bartlet_gower_leslie}. In symbols:
 
 \begin{equation}
@@ -308,7 +310,7 @@ Let's now turn our attention to the metastable, or quasi-equilibrium, state of t
     p_x\mu(x)=p_{x-1}\lambda(x-1)
 \end{equation}
 
-We will assume $N_g=0$ is an unreachable state and exclude it from consideration. Writing (\ref{recursive_relation}) for $2\leq x\leq A$ and combining with the normalization condition, we obtain a system of $A$ equations in $A$ variables:
+We will assume $N_g=0$ is an unreachable state and exclude it from consideration. Writing (\ref{recursive_relation}) for $2\leq x\leq A$, and combining with the normalization condition that $\sum_{x=1}^{A}p_x=1$, we obtain a system of $A$ equations in $A$ variables:
 
 \begin{equation}
     \label{quasi_eq_system}
@@ -341,6 +343,40 @@ Figure \ref{fig:exp_and_std}a shows that the expected metastable grass density i
     \label{fig:exp_and_std}
     \includegraphics{stochastic/exp_and_var}
 \end{figure}
+
+\subsection{The slow farmer}
+
+let
+
+$$q_x=\Pr(N_w(t)=x)$$
+
+then
+
+$$\dot{q}_x(t,N_g)=q_{x-1}(t)\frac{N-(x-1)}{N}\mu(N_g)-q_{x}(t)\frac{N-x}{N}\mu(N_g)$$
+
+$$=\frac{\mu(N_g)}{N}[q_{x-1}(t)(N-x+1)-q_x(t)(N-x)]$$
+
+$$\dot{\mathbf{q}}(t)=\mathbf{q}(t)\mathbf{S}$$
+
+$$\mathbf{S}=
+\begin{bmatrix}
+    s_{0,0} & s_{0,1} & s_{0,2} & \cdots & s_{0,N}\\
+    s_{1,0} & s_{1,1} & s_{1,2} & \cdots & s_{1,N}\\
+    s_{2,0} & s_{2,1} & s_{2,2} & \cdots & s_{2,N}\\
+    \vdots & \vdots & \vdots & \ddots & \vdots\\
+    s_{N,0} & s_{N,1} & s_{N,2} & \cdots & s_{N,N}
+\end{bmatrix}$$
+
+$$s_{i,j}=\frac{\mu(N_g)}{N}*\begin{cases}
+    s_{i,i+1}=N-i\\
+    s_{i,i}=N-i\\
+    0\;\;\mathrm{otherwise}
+\end{cases}
+$$
+
+for some $N_g$, $\mathbf{q}(T)$ is the solution of the above for $\mathbf{q}(0)=[1, 0, 0, \dots]$
+
+the final actual $\mathbf{q}(T)$ is the sum of all possible $\mathbf{q}(T)$ for all $N_g$, weighted by the metastable $p_x$
 
 \section{Conclusion}
 
