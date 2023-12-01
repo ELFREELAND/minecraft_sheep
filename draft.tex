@@ -34,7 +34,10 @@ Where $\mu$ is the rate at which grass is eaten, $A$ is the size of the pasture,
 
 The rate at which grass grows not as simple. If $N_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $N_g$ is large, grass growth will be limited by a lack of places for the grass to spread \textit{to}. To capture this behavior, we will employ a logistic model, where population follows the differential equation:
 
-$$\dot{y}=ky\left(1-\frac{y}{p}\right)$$
+\begin{equation}
+    \label{logistic_generic}
+    \dot{y}=ky\left(1-\frac{y}{p}\right)
+\end{equation}
 
 Where $y(t)$ is the population at time $t$, $k$ is a parameter representing the reproduction rate of the population and $p$ is the carrying capacity, the maximum population that the local environment can sustain.
 
@@ -49,29 +52,72 @@ Where $k$ is a constant as described above.
 
 The rate of population change is the difference of $\lambda$ and $\mu$:
 
+\begin{equation*}
+    \begin{split}
+        \dot{N}_g=\lambda-\mu&=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}\\
+        &=\left(k-\frac{NR}{A}\right)N_g\left(1-\frac{kN_g}{Ak-NR}\right)
+    \end{split}
+\end{equation*}
+
+Equation (\ref{combined_sheep_grass}) defines a logistic model for grass population with the effect of sheep:
+
 \begin{equation}
     \label{combined_sheep_grass}
-    \dot{N}_g=\lambda-\mu=kN_g\left(1-\frac{N_g}{A}\right)-\frac{NRN_g}{A}
+    \dot{N}_g=k^*N_g\left(1-\frac{N_g}{A^*}\right)
 \end{equation}
 
-At steady state, $\dot{N}_g=0$. Solving (\ref{combined_sheep_grass}) for $N_g$ when $\dot{N}_g=0$ gives the steady state grass population:
+Where
+
+\begin{equation*}
+    \begin{split}
+        k^*=k-\frac{NR}{A}\\
+        A^*=A-\frac{NR}{k}
+    \end{split}
+\end{equation*}
+
+$N_g$ will asymptotically approach $A^*$ as time goes on, therefore, we will refer to $A^*$ as the equilibrium grass population.
+
+\subsubsection{Decay time}
+A pasture in \textit{Minecraft} will typically begin covered with grass, i.e. $N_g=A$. In the deterministic model, we will assume that the pasture has equilibrated and $N_g=A^*$, but the nonequilibium mechanics will become important for the stochastic model. Therefore we will determine the decay time here.
+
+It would be very convenient if this asymptotic approach was exponential, as we could simply determine a characteristic decay time such as a half life. However, the approach is not exponential. The exact solution to (\ref{logistic_generic}) is:
 
 \begin{equation}
-    \label{grass_cover}
-    N_g=A-\frac{NR}{k}
+    \label{logistic_exact}
+    y = \frac{p}{1+\left(\frac{p-y_0}{y_0}\right)e^{-kt}}
 \end{equation}
 
-\subsection{Experimental determination of rate constants}
+Where $y_0$ is the initial population.
+
+Since this is not an exponential decay, a characteristic decay constant cannot be defined. For comparative purposes, we'll proceed anyway and find the time, $t_{90}$, for which the asymptotic approach is 90\% complete, i.e. $y(t_{90})=y_0-0.9(y_0-p)$:
+
+%consider taking the shoulder instead
+
+\begin{equation*}
+    t_{90} = -\frac{1}{k}\ln\left[\left(\frac{p}{y_0-0.9(y_0-p)}-1\right)\left(\frac{y_0}{p-y_0}\right)\right]
+\end{equation*}
+
+For our logistic model in (\ref{combined_sheep_grass}), we have a carrying capacity $A^*$, a rate constant $k^*$, and an intial population of $A$:
+
+\begin{equation}
+    \label{t90}
+    \begin{split}
+        t_{90} &= -\frac{1}{k^*}\ln\left[\left(\frac{A^*}{A-0.9(A-A^*)}-1\right)\left(\frac{A}{A^*-A}\right)\right]\\
+        &= -\frac{1}{k^*}\ln\left[\left(\frac{A-0.9\frac{NR}{k}-0.1\frac{NR}{k}}{A-0.9(\frac{NR}{k})}-1\right)\left(\frac{A}{A^*-A}\right)\right]\\
+        &= -\frac{1}{k^*}\ln\left[\left(-\frac{0.1\frac{NR}{k}}{A-0.9\frac{NR}{k}}\right)\left(\frac{-Ak}{NR}\right)\right]\\
+        &= -\frac{1}{k-\frac{NR}{A}}\ln\left[\frac{0.1A}{A-0.9\frac{NR}{k}}\right]\\
+        &= \frac{1}{k-\frac{NR}{A}}\ln\left[\frac{A-0.9\frac{NR}{k}}{0.1A}\right]\\
+        &= \frac{1}{k-\frac{NR}{A}}\ln\left[10-9\frac{NR}{Ak}\right]
+    \end{split}
+\end{equation}
+
+\subsection{Experimental determination of rate constants} \label{sec:experimental}
 
 Before proceeding further, it's worth determining the actual values of $k$ and $R$. This will be done via in-game experiments, which will be described briefly here. More detail can be found on the author's github\footnote{github.com/ELFREELAND/minecraft\_sheep}.
 
 Ten sheep were locked in cells with a grass block immediately underneath them. The cells included circuitry to count when each sheep ate the grass and automatically replenish it. In one hour, the sheep consumed 320 blocks of grass. This gives an R value of 0.00888 s\textsuperscript{-1}.
 
-A 30x30 patch of dirt was isolated from its surroundings and uniformly interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the exact solution of the logistic equation:
-
-$$y = \frac{p}{1+\left(\frac{p-y_0}{y_0}\right)e^{-kt}}$$
-
-The best fit gave $k=0.00773$ s\textsuperscript{-1}. The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
+A 30x30 patch of dirt was isolated from its surroundings and uniformly interspersed with 100 grass blocks. As the grass grew, the grass population was recorded every 5 seconds. The data was fit to the exact solution of the logistic equation  (\ref{logistic_exact}). The best fit gave $k=0.00773$ s\textsuperscript{-1}. The data and fit are compared in Figure \ref{fig:grass_logistic_fit}. The close fit gives us also confidence that the logistic model is appropriate.
 
 \begin{figure}[h]
     \caption{Logistic model fit to grass growth data.}
@@ -82,7 +128,7 @@ The best fit gave $k=0.00773$ s\textsuperscript{-1}. The data and fit are compar
 
 \subsection{The fast farmer}
 
-For simplicity, let's imagine the farmer has superhuman speed, and is able to shear each sheep the instant it grows its wool. In this case, the rate at which wool is gathered is equal to $\mu$. Denoting the rate of wool gathering with $F$, and substituting (\ref{grass_cover}) into (\ref{sheep_eat}):
+For simplicity, let's imagine the farmer has superhuman speed, and is able to shear each sheep the instant it grows its wool. In this case, the rate at which wool is gathered is equal to $\mu$. Denoting the rate of wool gathering with $F$, and substituting $N_g=A^*$ into (\ref{sheep_eat}):
 
 \begin{equation}
     \label{ffast}
