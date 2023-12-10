@@ -3,6 +3,16 @@
 \author{Evan Freeland}
 %\usepackage{mathmag}
 
+% draft watermark
+%===============================
+\usepackage[svgnames]{xcolor}
+\usepackage[
+    text=DRAFT,
+    scale=5,
+    color={[rgb]{1, 0.8, 0.8}}
+    ]{draftwatermark}
+%===============================
+
 \usepackage{amsmath,amsthm}     
 \usepackage{graphicx}     
 \usepackage{hyperref} 
@@ -12,7 +22,6 @@
 
 \begin{document}
 \maketitle
-
 \section{Introduction}
 
 \textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in Minecraft version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared to gather wool, and must eat grass to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
@@ -235,22 +244,52 @@ In words, $p_x(t)$ is the probability that the pasture has $N_g=x$ at time $t$.
 
 We'll also need to slightly reconsider the meanings of $\mu$ and $\lambda$. In the deterministic model, these are the rate of grass growth or consumption. For a small time interval $\Delta t$, the number of grass blocks that are eaten is $\mu\Delta t$, and likewise for $\lambda$. If $\Delta t$ is sufficiently short so that the probability of two independent changes in grass population is negligible, $\mu\Delta t$ can be reinterpreted as the probability of one grass block being consumed in time $\Delta t$, and likewise for $\lambda$. $\mu$ and $\lambda$ therefore represent the probability of the pasture transitioning to a state with one more or one less grass block than before.
 
-Using these new interpretations of $\mu$ and $\lambda$, we can write a system of differential equations describing the evolution of the probability distribusion of $N_g$ with time:
+Using these new interpretations of $\mu$ and $\lambda$, we can write a system of differential equations describing the evolution of the probability distribusion of $N_g$ with time. Consider a pasture at time $t=t_0$, with $N_g(t_0)=x$. A short time ago, at time $t=t_0-\Delta t$, the pasture had $N_g(t_0-\Delta t)$. The pasture may have arrived at $N_g(t_0)=x$ in one of four ways:
+
+\begin{enumerate}
+    \item $N_g(t_0-\Delta t)=x$, and neither eating nor growth take place.
+    \item $N_g(t_0-\Delta t)=x-1$, and one grass block regrows.
+    \item $N_g(t_0-\Delta t)=x+1$, and one grass block is eaten.
+    \item Two or more growth and eating events occur.
+\end{enumerate}
+
+he probability of each pathway is the probability that the pasture was in the required state $N_g(t_0-\Delta t)$ times the probability of the event (eating or growth) required to bring the pasture to $N_g(t_0)=x$. The probability of one grass growth in time $\Delta t$ is $\lambda\Delta t$, and the probability of one grass block being eaten is $\mu\Delta t$. This gives the probability of nothing happening as $(1-\lambda-\mu)\Delta t$. Finally, the probability of multiple events is some product of $\lambda\Delta t$ and $\mu\Delta t$, and is therefore dependent on $\Delta t$ with order 2 or higher. The probability of each path is therefore:
+
+\begin{align*}
+    \Pr(1)=&p_x(t_0-\Delta t)(1-\lambda-\mu)\Delta t\\
+    \Pr(2)=&p_{x-1}(t_0-\Delta t)\lambda\Delta t\\
+    \Pr(3)=&p_{x+1}(t_0-\Delta t)\mu\Delta t\\
+    \Pr(4)\approx&O(\Delta t^2)\\
+\end{align*}
+
+The probability of the pasture arriving at $N_g(t_0)=x$ is the sum of the probability of each pathway:
+
+\begin{align*}
+    p_x(t_0)&=p_x(t_0-\Delta t)(1-\lambda-\mu)\Delta t\\
+    &+p_{x-1}(t_0-\Delta t)\lambda\Delta t\\
+    &+p_{x+1}(t_0-\Delta t)\mu\Delta t\\
+    &+O(\Delta t^2)
+\end{align*}
+
+subtracting $p_x(t_0-\Delta t)$ and dividing by $\Delta t$:
+
+\begin{align*}
+    \frac{p_x(t_0)-p_x(t_0-\Delta t)}{\Delta t}&=-p_x(t_0-\Delta t)(\lambda+\mu)\\
+    &+p_{x-1}(t_0-\Delta t)\lambda\\
+    &+p_{x+1}(t_0-\Delta t)\mu\\
+    &+O(\Delta t^1)
+\end{align*}
+
+and taking the limit as $\Delta t\rightarrow 0$:
 
 \begin{equation}
     \label{p_dot}
     \dot{p}_x(t)=-p_x(t)(\lambda(x)+\mu(x))+p_{x-1}(t)\lambda(x-1)+p_{x+1}(t)\mu(x+1)
 \end{equation}
 
-Note that $\mu(x)$ simply represnts the value of $\mu$ with $N_g=x$, and likewise for $\lambda$.
+Note that $\mu(x)$ simply represnts the value of $\mu$ with $N_g=x$, and likewise for $\lambda$. Note also that the $O(\Delta t^2)$ term has vanished upon taking the limit $\Delta t\rightarrow 0$.
 
 Systems of equations such as these, which describe the evolution of a probability distribution with time, are known as \textit{Kolmogorov equations}. We will have a system of $A+1$ equations, one for each possible value of $N_g$.
-
-There are a couple of special cases to address, namely, the cases of $\dot{p}_0$ and $\dot{p}_A$. Since $\lambda(0)=\mu(0)=0$ and $p_{-1}=p_{A+1}=0$:
-
-$$\dot{p}_0(t)=p_1(t)\mu(1)$$
-
-$$\dot{p}_A(t)=-p_A(t)(\lambda(A)+\mu(A))+p_{A-1}(t)\lambda(A-1)$$
 
 We'll wrap up the system into vector form for convenient expression. Let $\mathbf{p}$ be a vector of $p_x$, and $\dot{\mathbf{p}}$ its derivative:
 
@@ -269,10 +308,11 @@ $$\mathbf{R}=
     r_{A,0} & r_{A,1} & r_{A,2} & \cdots & r_{A,A}
 \end{bmatrix}$$
 
+The coefficient $r_{i,j}$ relates $p_i$ with $\dot{p}_j$:
+
 $$r_{i,j}=\begin{cases}
-    r_{0,j}=0\\
-    r_{i,i+1}=\lambda(i)\\
-    r_{i+1,i}=\mu(i)\\
+    r_{j-1,j}=\lambda(j-1)\\
+    r_{j+1,j}=\mu(j)\\
     r_{i,i}=-(\lambda(i)+\mu(i))\\
     0\;\;\mathrm{otherwise}
 \end{cases}
@@ -302,11 +342,11 @@ Let's look in a little more detail at the behavior of the pasture. Figure \ref{f
     \centering
 \end{figure}
 
-The reason for this isn't hard to see by considering the equation for $\dot{p}_0$:
+The reason for this isn't hard to see by considering the equation for $\dot{p}_0$. Beginning with (\ref{p_dot}) and considering that $p_{-1}=0$ and $\lambda(0)=\mu(0)=0$:
 
 $$\dot{p}_0(t)=p_1(t)\mu(1)$$
 
-Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium distribution is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may remain at a different \textit{metastable} state if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}a. The distribution for $N=40$ \textquotedblleft{}stabilizes\textquotedblright{} with a value of $p_1$ so low that $\dot{p}_0$ remains negligible. The metastable distribution can be also approximated analyically \cite{bartlet_gower_leslie} (see also \cite{matis_kiffe} section 6.8.2).
+Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium distribution is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may remain at a different \textit{metastable} state if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}a. The distribution for $N=40$ "stabilizes" with a value of $p_1$ so low that $\dot{p}_0$ remains negligible. The metastable distribution can be also approximated analyically \cite{bartlet_gower_leslie} (see also \cite{matis_kiffe} section 6.8.2).
 
 Rapid grass extinction at high sheep densities poses a problem, since the slow farmer deterministic model predicts that the optimal $N$ increases as $T$ increases (see figure \ref{fig:fslow_optimal}). Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
 
@@ -325,74 +365,93 @@ We can apply this solution to obtain the ETE for any value of $N$ and $A$, as de
     \centering
 \end{figure}
 
-For 
-
 \subsection{The fast farmer}
-The mechanics of the fast farmer are 
 
-\subsection{The slow farmer}
+\subsection{The stochastic slow farmer}
 
-analysis 1
+It seems like a natural next step to pursue an analysis of the slow farmer situation with Kolmogorov equations. However, this analysis is not so simple. We now have two variables evolving at the same time, $N_g$ and $N_w$. Therefore, we will need to consider a bivariate probability distribution. We will denote this as $q_{x,y}(t)$:
 
-let
+$$q_{x,y}(t)=\Pr(N_g(t)=x, N_w(t)=y)$$
 
-$$q_x=\Pr(N_w(t)=x)$$
+Consider a pasture at time $t_0$, with $N_g(t_0)=x$ and $N_w(t_0)=y$. A short time ago, at time $t=t_0-\Delta t$, the pasture had $N_g(t_0-\Delta t)$ and $N_w(t_0-\Delta t)$. The pasture may have arrived at the state at $t_0$ in one of several ways:
 
-then
+\begin{itemize}
+    \item $N_g(t_0-\Delta t)=N_g(t_0)$ and $N_w(t_0-\Delta t)=N_w(t_0)$, and neither eating nor growth take place.
+    \item $N_g(t_0-\Delta t)=N_g(t_0)-1$ and $N_w(t_0-\Delta t)=N_w(t_0)$, and one grass block regrows.
+    \item $N_g(t_0-\Delta t)=N_g(t_0)+1$ and one grass block is eaten:\begin{itemize}
+        \item $N_w(t_0-\Delta t)=N_w(t_0)$, and the sheep that ate the grass already had its wool.
+        \item $N_w(t_0-\Delta t)=N_w(t_0)-1$, and the sheep that ate the grass did not previously have wool.
+    \end{itemize}
+    \item Two or more growth and eating events occur.
+\end{itemize}
 
-$$\dot{q}_x(t,N_g)=q_{x-1}(t)\frac{N-(x-1)}{N}\mu(N_g)-q_{x}(t)\frac{N-x}{N}\mu(N_g)$$
+As with the fast-farmer model, the probability of each path is the probability of the pasture existing at the required initial state, times the probability of the required change occuring. For the two cases involving one block of grass being eaten, the probability of the event will include a term pertaining to the number of sheep who have their wool. The probability of the pasture arriving at $N_g=x$ and $N_w=y$ is the sum of the probabilities of each path:
 
-$$=\frac{\mu(N_g)}{N}[q_{x-1}(t)(N-x+1)-q_x(t)(N-x)]$$
+\begin{equation*}
+    \begin{split}
+        q_{x,y}(t)&=q_{x,y}(t-\Delta t)(1-\mu(x)-\lambda(x))\Delta t\\
+        &+q_{x-1,y}(t-\Delta t)\lambda(x-1)\Delta t\\
+        &+q_{x+1,y}(t-\Delta t)\mu(x+1)\frac{y}{N}\Delta t\\
+        &+q_{x+1,y-1}(t-\Delta t)\mu(x+1)\frac{N-(y-1)}{N}\Delta t\\
+        &+O(\Delta t^2)
+    \end{split}
+\end{equation*}
+
+Subtracting $q_{x,y}(t-\Delta t)$, dividing by $\Delta t$, and taking the limit $\Delta t \rightarrow 0$:
+
+\begin{equation}
+    \label{q_dot}
+    \begin{split}
+        \dot{q}_{x,y}(t)&=q_{x,y}(t)(-\mu(x)-\lambda(x))\\
+        &+q_{x-1,y}(t)\lambda(x-1)\\
+        &+q_{x+1,y}(t)\mu(x+1)\frac{y}{N}\\
+        &+q_{x+1,y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}
+    \end{split}
+\end{equation}
+
+We will have one equation for each combination of $N_g$ and $N_w$, i.e. $(N+1)(A+1)$ equations. Expressing the system in vector form:
+
+$$\mathbf{q}(t)=[q_{0,0}(t), q_{1,0}(t), q_{2,0}(t),\dots q_{A,0}(t), q_{0,1}(t), q_{1,1}(t), q_{2,1}(t),\dots q_{A,N}(t)]$$
+
+$$\dot{\mathbf{q}}(t)=[\dot{q}_{0,0}(t), \dot{q}_{1,0}(t), \dot{q}_{2,0}(t),\dots \dot{q}_{A,0}(t), \dot{q}_{0,1}(t), \dot{q}_{1,1}(t), \dot{q}_{2,1}(t),\dots \dot{q}_{A,N}(t)]$$
 
 $$\dot{\mathbf{q}}(t)=\mathbf{q}(t)\mathbf{S}$$
 
+The matrix $\mathbf{S}$ has dimension $(N+1)(A+1)\times(N+1)(A+1)$:
+
+%is there ANY way to make this system less of a god damn cluster fuck
+
 $$\mathbf{S}=
 \begin{bmatrix}
-    s_{0,0} & s_{0,1} & s_{0,2} & \cdots & s_{0,N}\\
-    s_{1,0} & s_{1,1} & s_{1,2} & \cdots & s_{1,N}\\
-    s_{2,0} & s_{2,1} & s_{2,2} & \cdots & s_{2,N}\\
-    \vdots & \vdots & \vdots & \ddots & \vdots\\
-    s_{N,0} & s_{N,1} & s_{N,2} & \cdots & s_{N,N}
+    s_{0,0;0,0} & s_{0,0;1,0} & \cdots & s_{0,0;A,0} & s_{0,0;0,1} & s_{0,0;1,1} & \cdots & s_{0,0;A,N}\\
+    s_{1,0;0,0} & s_{1,0;1,0} & \cdots & s_{1,0;A,0} & s_{1,0;0,1} & s_{1,0;1,1} & \cdots & s_{1,0;A,N}\\
+    \vdots & \vdots & & \vdots & \vdots &\vdots & & \vdots\\
+    s_{A,0;0,0} & s_{A,0;1,0} & \cdots & s_{A,0;A,0} & s_{A,0;0,1} & s_{A,0;1,1} & \cdots & s_{A,0;A,N}\\
+    s_{0,1;0,0} & s_{0,1;1,0} & \cdots & s_{0,1;A,0} & s_{0,1;0,1} & s_{0,1;1,1} & \cdots & s_{0,1;A,N}\\
+    s_{1,1;0,0} & s_{1,1;1,0} & \cdots & s_{1,1;A,0} & s_{1,1;0,1} & s_{1,1;1,1} & \cdots & s_{1,1;A,N}\\
+    \vdots & \vdots & & \vdots & \vdots &\vdots & & \vdots\\
+    s_{A,N;0,0} & s_{A,N;1,0} & \cdots & s_{A,N;A,0} & s_{A,N;0,1} & s_{A,N;1,1} & \cdots & s_{A,N;A,N}\\
 \end{bmatrix}$$
 
-$$s_{i,j}=\frac{\mu(N_g)}{N}\begin{cases}
-    s_{i,i+1}=N-i\\
-    s_{i,i}=-(N-i)\\
+Element $s_{i,j;k,l}$ relates $q_{i,j}$ with $\dot{q}_{k,l}$:
+
+$$s_{i,j;k,l}=\begin{cases}
+    s_{i,j;i;j}=-\mu(i)-\lambda(i)\\
+    s_{k-1,l;k,l}=\lambda(k-1)\\
+    s_{k+1,l;k,l}=\mu(k+1)\frac{l}{N}\\
+    s_{k+1,l-1;k,l}=\mu(k+1)\frac{N-(l-1)}{N}\\
     0\;\;\mathrm{otherwise}
 \end{cases}
 $$
 
-for some $N_g$, $\mathbf{q}(T)$ is the solution of the above for $\mathbf{q}(0)=[1, 0, 0, \dots]$
-
-the final actual $\mathbf{q}(T)$ is the sum of all possible $\mathbf{q}(T)$ for all $N_g$, weighted by the metastable $p_x$
-
-analysis 2
-
-let
-
-$$q_x=\Pr(N_w(t)=x)$$
-
-then
-
-$$\dot{q}_x(t,N_g)=q_{x-1}(t)\frac{N-(x-1)}{N}\mu(N_g)-q_{x}(t)\frac{N-x}{N}\mu(N_g)$$
-
-$$=\frac{\mu(N_g)}{N}[q_{x-1}(t)(N-x+1)-q_x(t)(N-x)]$$
-
-the derivative is uncertain 
-
-$$\dot{\mathbf{q}}(t)=\mathbf{q}(t)\mathbf{S}$$
-
-\section{Conclusion}
-
 \begin{thebibliography}{1}
 
-    \bibitem{matis_kiffe} Matis, J., Kiffe, T. Stochastic Population Models: a Compartmental Perspective.
+    \bibitem{matis_kiffe} Matis, James, and Thomas Kiffe, eds. Stochastic Population Models: A Compartmental Perspective. 1st ed. Lecture Notes in Statistics. New York: Springer, n.d.
 
-    \bibitem{skellam} Skellam, J. G. (1946). The Frequency Distribution of the Difference Between Two Poisson Variates Belonging to Different Populations.
+    \bibitem{matis_wehrly_metzler} Matis, J. H., T. E. Wehrly, and C. M. Metzler. “On Some Stochastic Formulations and Related Statistical Moments of Pharmacokinetic Model.” Journal of Pharmacokinetics and Biopharmaceutics 11, no. 1 (1983): 77-92. https://doi.org/10.1007/BF01061769.
 
-    \bibitem{matis_wehrly_metzler} Matis, J., Wehrly, T., Metzler, C. On Some Stochastic Formulations and Related Statistical Moments of Pharmacokinetic Models.
+    \bibitem{bartlet_gower_leslie} Bartlett, M. S., J. C. Gower, and P. H. Leslie. “A Comparison of Theoretical and Empirical Results for Some Stochastic Population Models.” Biometrika 47, no. 1-2 (June 1, 1960): 1-11. https://doi.org/10.1093/biomet/47.1-2.1.
 
-    \bibitem{bartlet_gower_leslie} M. S. Bartlett, J. C. Gower, and P. H. Leslie, A comparison of theoretical and empirical results for some stochastic population models, Biometrika 47: 1-11 (1960).
 
 \end{thebibliography}
 
