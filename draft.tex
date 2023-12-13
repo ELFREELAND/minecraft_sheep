@@ -371,9 +371,9 @@ We can apply this solution to obtain the ETE for any value of $N$ and $A$, as de
 
 \subsection{The slow farmer}
 
-It seems like a natural next step to pursue an analysis of the slow farmer situation with Kolmogorov equations. However, this analysis is not so simple. We now have two variables evolving at the same time, $N_g$ and $N_w$. Therefore, we will need to consider a bivariate probability distribution. We will denote this as $q_{x,y}(t)$:
+It seems like a natural next step to pursue an analysis of the slow farmer situation with Kolmogorov equations. However, this analysis is not so simple. We now have two variables evolving at the same time, $N_g$ and $N_w$. Therefore, we will need to consider a bivariate probability distribution. As before, we will denote this as $p_{x,y}(t)$:
 
-$$q_{x,y}(t)=\Pr(N_g(t)=x, N_w(t)=y)$$
+$$p_{x,y}(t)=\Pr(N_g(t)=x, N_w(t)=y)$$
 
 Consider a pasture at time $t_0$, with $N_g(t_0)=x$ and $N_w(t_0)=y$. A short time ago, at time $t=t_0-\Delta t$, the pasture had $N_g(t_0-\Delta t)$ and $N_w(t_0-\Delta t)$. The pasture may have arrived at the state at $t_0$ in one of several ways:
 
@@ -391,57 +391,77 @@ As with the fast-farmer model, the probability of each path is the probability o
 
 \begin{equation*}
     \begin{split}
-        q_{x,y}(t)&=q_{x,y}(t-\Delta t)(1-\mu(x)-\lambda(x))\Delta t\\
-        &+q_{x-1,y}(t-\Delta t)\lambda(x-1)\Delta t\\
-        &+q_{x+1,y}(t-\Delta t)\mu(x+1)\frac{y}{N}\Delta t\\
-        &+q_{x+1,y-1}(t-\Delta t)\mu(x+1)\frac{N-(y-1)}{N}\Delta t\\
+        p_{x,y}(t)&=p_{x,y}(t-\Delta t)(1-\mu(x)-\lambda(x))\Delta t\\
+        &+p_{x-1,y}(t-\Delta t)\lambda(x-1)\Delta t\\
+        &+p_{x+1,y}(t-\Delta t)\mu(x+1)\frac{y}{N}\Delta t\\
+        &+p_{x+1,y-1}(t-\Delta t)\mu(x+1)\frac{N-(y-1)}{N}\Delta t\\
         &+O(\Delta t^2)
     \end{split}
 \end{equation*}
 
-Subtracting $q_{x,y}(t-\Delta t)$, dividing by $\Delta t$, and taking the limit $\Delta t \rightarrow 0$:
+Subtracting $p_{x,y}(t-\Delta t)$, dividing by $\Delta t$, and taking the limit $\Delta t \rightarrow 0$:
 
 \begin{equation}
-    \label{q_dot}
+    \label{p_xy_dot}
     \begin{split}
-        \dot{q}_{x,y}(t)&=q_{x,y}(t)(-\mu(x)-\lambda(x))\\
-        &+q_{x-1,y}(t)\lambda(x-1)\\
-        &+q_{x+1,y}(t)\mu(x+1)\frac{y}{N}\\
-        &+q_{x+1,y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}
+        \dot{p}_{x,y}(t)&=p_{x,y}(t)(-\mu(x)-\lambda(x))\\
+        &+p_{x-1,y}(t)\lambda(x-1)\\
+        &+p_{x+1,y}(t)\mu(x+1)\frac{y}{N}\\
+        &+p_{x+1,y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}
     \end{split}
 \end{equation}
 
-We will have one equation for each combination of $N_g$ and $N_w$, i.e. $(N+1)(A+1)$ equations. We'll express $q$ as a matrix:
+We will have one equation for each combination of $N_g$ and $N_w$, i.e. $(N+1)(A+1)$ equations. It's tempting to proceed by coming up with a matrix of $p_{x,y}$ and some tensor of coefficients relating them, but let's step back and remember that we are going to be solving this system numerically. A pasture of $A=200$ and $N=100$ will require a system of 20301 equations. In principle, a system of simultaneous differential equations of any size can be solved numerically with enough processor time, but in practice, a system of this size will take inconveniently long to solve on an average personal computer.
 
-$$\mathbf{q}(t)=\begin{bmatrix}
-    q_{0,0} & q_{1,0} & q_{2,0} & \dots & q_{A,0}\\
-    q_{0,1} & q_{1,1} & q_{2,1} & \dots & q_{A,1}\\
-    q_{0,2} & q_{1,2} & q_{2,2} & \dots & q_{A,2}\\
-    \vdots & \vdots & \vdots & & \vdots\\
-    q_{0,2} & q_{1,2} & q_{2,2} & \dots & q_{A,2}
-\end{bmatrix}$$
+Recall that when we were analyzing the deterministic slow farmer model, we assumed that the pasture had already reached equilibrium. We saw in the previous section that pastures with long ETE will assume a metastable distribution. Therefore we will try to simplify this system of equations by assuming the pasture has reached a metastable distribution.
 
-$$\dot{\mathbf{q}}(t)=\mathbf{q}(t)\mathbf{S}$$
+$p_{x,y}$ is the probability of the joint event of $N_g=x$ and $N_w=y$. Assuning the events are independent, we can rewrite $p_{x,y}$ as:
 
-$\mathbf{S}$ is now a 4th-rank tensor, where element $S_{i,j;k,l}$ relates $q_{i,j}$ with $\dot{q}_{k,l}$:
+$$p_{x,y}=p_xq_y$$
 
-$$\dot{q}_{k,l}=\sum_{i,j}q_{i,j}S_{i,j;k,l}$$
+Where $p_x=\Pr(N_g=x)$ and $q_y=\Pr(N_w=y)$.
+
+We can rewrite (\ref{p_xy_dot}) with this in mind:
 
 \begin{equation*}
-    S_{i,j;k,l}=\begin{cases}
-        S_{i,j;i;j}=-\mu(i)-\lambda(i)\\
-        S_{k-1,l;k,l}=\lambda(k-1)\\
-        S_{k+1,l;k,l}=\mu(k+1)\frac{l}{N}\\
-        S_{k+1,l-1;k,l}=\mu(k+1)\frac{N-(l-1)}{N}\\
-        0\;\;\mathrm{otherwise}
-    \end{cases}
+    \begin{split}
+        \dot{p}_{x,y}(t)=p_x\dot{q}_y(t)&=p_xq_y(t)(-\mu(x)-\lambda(x))\\
+        &+p_{x-1}q_y(t)\lambda(x-1)\\
+        &+p_{x+1}q_y(t)\mu(x+1)\frac{y}{N}\\
+        &+p_{x+1}q_{y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}
+    \end{split}
 \end{equation*}
 
-\begin{figure}
-    \caption{Evolution of $N_w$ distribution for a pasture of size $A=$, for (a) $N=$ and (b) $N=$.}
-    \label{fig:q_nw_evolution}
-    \includegraphics{stochastic/q_nw_evolution}
-\end{figure}
+We'll assume $p_x$ is time-independent, so $\frac{d(p_xq_y)}{dt}=p_x\frac{dq_y}{dt}$.
+
+Summing $p_{x,y}$ over all $x$ gives $q_y$, therefore, summing $\dot{p}_{x,y}$ over all $x$ gives $\dot{q}_y$:
+
+%can i find a way to make these brackets big?
+
+\begin{equation}
+    \begin{split}
+        \dot{q}_y(t)=\sum_{x=0}^{A}\dot{p}_{x,y}=\sum_{x=0}^{A}[&p_xq_y(t)(-\mu(x)-\lambda(x))\\
+        &+p_{x-1}q_y(t)\lambda(x-1)\\
+        &+p_{x+1}q_y(t)\mu(x+1)\frac{y}{N}\\
+        &+p_{x+1}q_{y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}]
+    \end{split}
+\end{equation}
+
+By summing across all $x$, we have reduced our system of equations to size $N+1$. We can express our system in vector form, as before:
+
+$$\mathbf{q}(t)=[q_0(t), q_1(t), q_2(t), \dots q_N(t)]$$
+
+$$\dot{\mathbf{q}}(t)=\mathbf{q}(t)\mathbf{R}$$
+
+The coefficient $r_{i,j}$ relates $q_i$ with $\dot{q}_j$:
+
+\begin{equation*}
+    r_{i,j}=\begin{cases}
+        r_{i,N}=0\\
+        r_{j,j}=\sum_{x=0}^{N}[p_x(-\mu(x)-\lambda(x))+p_{x-1}\lambda(x-1)+p_{x+1}\mu(x+1)\frac{j}{N}]\\
+        r_{j+1,j}=\sum_{x=0}^{A}p_{x+1}\mu(x+1)\frac{N-j}{N}
+    \end{cases}
+\end{equation*}
 
 \begin{thebibliography}{1}
 
@@ -450,7 +470,6 @@ $$\dot{q}_{k,l}=\sum_{i,j}q_{i,j}S_{i,j;k,l}$$
     \bibitem{matis_wehrly_metzler} Matis, J. H., T. E. Wehrly, and C. M. Metzler. “On Some Stochastic Formulations and Related Statistical Moments of Pharmacokinetic Model.” Journal of Pharmacokinetics and Biopharmaceutics 11, no. 1 (1983): 77-92. https://doi.org/10.1007/BF01061769.
 
     \bibitem{bartlet_gower_leslie} Bartlett, M. S., J. C. Gower, and P. H. Leslie. “A Comparison of Theoretical and Empirical Results for Some Stochastic Population Models.” Biometrika 47, no. 1-2 (June 1, 1960): 1-11. https://doi.org/10.1093/biomet/47.1-2.1.
-
 
 \end{thebibliography}
 
