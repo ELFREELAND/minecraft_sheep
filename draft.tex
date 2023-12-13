@@ -171,7 +171,7 @@ $$N_{w,T}=N-Ne^{\frac{TRA^*}{A}}$$
 
 So when the farmer comes back to shear the sheep at $t=T$, they will get $N-N\exp\left(-\frac{TRA^*}{A}\right)$ blocks of wool. If the farmer keeps coming back every $T$ seconds, they will be gathering wool at a rate:
 
-$$F_{slow}=\frac{N-Ne^{-\frac{TRN_g}{A}}}{T}$$
+$$F_{slow}=\frac{N-Ne^{-\frac{TRA^*}{A}}}{T}$$
 
 Finally, we can plug in the expression for $A^*$:
 
@@ -244,7 +244,7 @@ In words, $p_x(t)$ is the probability that the pasture has $N_g=x$ at time $t$.
 
 We'll also need to slightly reconsider the meanings of $\mu$ and $\lambda$. In the deterministic model, these are the rate of grass growth or consumption. For a small time interval $\Delta t$, the number of grass blocks that are eaten is $\mu\Delta t$, and likewise for $\lambda$. If $\Delta t$ is sufficiently short so that the probability of two independent changes in grass population is negligible, $\mu\Delta t$ can be reinterpreted as the probability of one grass block being consumed in time $\Delta t$, and likewise for $\lambda$. $\mu$ and $\lambda$ therefore represent the probability of the pasture transitioning to a state with one more or one less grass block than before.
 
-Using these new interpretations of $\mu$ and $\lambda$, we can write a system of differential equations describing the evolution of the probability distribusion of $N_g$ with time. Consider a pasture at time $t=t_0$, with $N_g(t_0)=x$. A short time ago, at time $t=t_0-\Delta t$, the pasture had $N_g(t_0-\Delta t)$. The pasture may have arrived at $N_g(t_0)=x$ in one of four ways:
+Using these new interpretations of $\mu$ and $\lambda$, we can write a system of differential equations describing the evolution of the probability distribution of $N_g$ with time. Consider a pasture at time $t=t_0$, with $N_g(t_0)=x$. A short time ago, at time $t=t_0-\Delta t$, the pasture had $N_g(t_0-\Delta t)$. The pasture may have arrived at $N_g(t_0)=x$ in one of four ways:
 
 \begin{enumerate}
     \item $N_g(t_0-\Delta t)=x$, and neither eating nor growth take place.
@@ -253,7 +253,7 @@ Using these new interpretations of $\mu$ and $\lambda$, we can write a system of
     \item Two or more growth and eating events occur.
 \end{enumerate}
 
-he probability of each pathway is the probability that the pasture was in the required state $N_g(t_0-\Delta t)$ times the probability of the event (eating or growth) required to bring the pasture to $N_g(t_0)=x$. The probability of one grass growth in time $\Delta t$ is $\lambda\Delta t$, and the probability of one grass block being eaten is $\mu\Delta t$. This gives the probability of nothing happening as $(1-\lambda-\mu)\Delta t$. Finally, the probability of multiple events is some product of $\lambda\Delta t$ and $\mu\Delta t$, and is therefore dependent on $\Delta t$ with order 2 or higher. The probability of each path is therefore:
+The probability of each pathway is the probability that the pasture was in the required state $N_g(t_0-\Delta t)$ times the probability of the event (eating or growth) required to bring the pasture to $N_g(t_0)=x$. The probability of one grass growth in time $\Delta t$ is $\lambda\Delta t$, and the probability of one grass block being eaten is $\mu\Delta t$. This gives the probability of nothing happening as $(1-\lambda-\mu)\Delta t$. Finally, the probability of multiple events is some product of $\lambda\Delta t$ and $\mu\Delta t$, and is therefore dependent on $\Delta t$ with order 2 or higher. The probability of each path is therefore:
 
 \begin{align*}
     \Pr(1)=&p_x(t_0-\Delta t)(1-\lambda-\mu)\Delta t\\
@@ -310,6 +310,8 @@ $$\mathbf{R}=
 
 The coefficient $r_{i,j}$ relates $p_i$ with $\dot{p}_j$:
 
+$$\dot{p}_j=\sum_{i}r_{ij}p_i$$
+
 $$r_{i,j}=\begin{cases}
     r_{j-1,j}=\lambda(j-1)\\
     r_{j+1,j}=\mu(j)\\
@@ -336,7 +338,7 @@ We can already see the stochastic model deviating from the deterministic model. 
 Let's look in a little more detail at the behavior of the pasture. Figure \ref{fig:evolution} shows the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture. Both pastures begin with $N_g=A$, i.e. $\textbf{p}=[0, 0, 0, \dots 0, 1]$. The pasture with $N=40$ approaches a stable state, evidenced by the indistinguishable distributions at $t=1600$ s and $t=9500$ s. In contrast, the pasture with $N=70$ continues evolving toward smaller and smaller grass populations, with $p_0$ increasing dramatically as time proceeds.
 
 \begin{figure}
-    \caption{Evolution of $p_x$ distribution for a pasture of size $A=100$, for (a) $N=40$ and (b) $N=70$.}
+    \caption{Evolution of $N_g$ distribution for a pasture of size $A=100$, for (a) $N=40$ and (b) $N=70$.}
     \label{fig:evolution}
     \includegraphics{stochastic/evolution}
     \centering
@@ -367,7 +369,7 @@ We can apply this solution to obtain the ETE for any value of $N$ and $A$, as de
 
 \subsection{The fast farmer}
 
-\subsection{The stochastic slow farmer}
+\subsection{The slow farmer}
 
 It seems like a natural next step to pursue an analysis of the slow farmer situation with Kolmogorov equations. However, this analysis is not so simple. We now have two variables evolving at the same time, $N_g$ and $N_w$. Therefore, we will need to consider a bivariate probability distribution. We will denote this as $q_{x,y}(t)$:
 
@@ -409,40 +411,37 @@ Subtracting $q_{x,y}(t-\Delta t)$, dividing by $\Delta t$, and taking the limit 
     \end{split}
 \end{equation}
 
-We will have one equation for each combination of $N_g$ and $N_w$, i.e. $(N+1)(A+1)$ equations. Expressing the system in vector form:
+We will have one equation for each combination of $N_g$ and $N_w$, i.e. $(N+1)(A+1)$ equations. We'll express $q$ as a matrix:
 
-$$\mathbf{q}(t)=[q_{0,0}(t), q_{1,0}(t), q_{2,0}(t),\dots q_{A,0}(t), q_{0,1}(t), q_{1,1}(t), q_{2,1}(t),\dots q_{A,N}(t)]$$
-
-$$\dot{\mathbf{q}}(t)=[\dot{q}_{0,0}(t), \dot{q}_{1,0}(t), \dot{q}_{2,0}(t),\dots \dot{q}_{A,0}(t), \dot{q}_{0,1}(t), \dot{q}_{1,1}(t), \dot{q}_{2,1}(t),\dots \dot{q}_{A,N}(t)]$$
+$$\mathbf{q}(t)=\begin{bmatrix}
+    q_{0,0} & q_{1,0} & q_{2,0} & \dots & q_{A,0}\\
+    q_{0,1} & q_{1,1} & q_{2,1} & \dots & q_{A,1}\\
+    q_{0,2} & q_{1,2} & q_{2,2} & \dots & q_{A,2}\\
+    \vdots & \vdots & \vdots & & \vdots\\
+    q_{0,2} & q_{1,2} & q_{2,2} & \dots & q_{A,2}
+\end{bmatrix}$$
 
 $$\dot{\mathbf{q}}(t)=\mathbf{q}(t)\mathbf{S}$$
 
-The matrix $\mathbf{S}$ has dimension $(N+1)(A+1)\times(N+1)(A+1)$:
+$\mathbf{S}$ is now a 4th-rank tensor, where element $S_{i,j;k,l}$ relates $q_{i,j}$ with $\dot{q}_{k,l}$:
 
-%is there ANY way to make this system less of a god damn cluster fuck
+$$\dot{q}_{k,l}=\sum_{i,j}q_{i,j}S_{i,j;k,l}$$
 
-$$\mathbf{S}=
-\begin{bmatrix}
-    s_{0,0;0,0} & s_{0,0;1,0} & \cdots & s_{0,0;A,0} & s_{0,0;0,1} & s_{0,0;1,1} & \cdots & s_{0,0;A,N}\\
-    s_{1,0;0,0} & s_{1,0;1,0} & \cdots & s_{1,0;A,0} & s_{1,0;0,1} & s_{1,0;1,1} & \cdots & s_{1,0;A,N}\\
-    \vdots & \vdots & & \vdots & \vdots &\vdots & & \vdots\\
-    s_{A,0;0,0} & s_{A,0;1,0} & \cdots & s_{A,0;A,0} & s_{A,0;0,1} & s_{A,0;1,1} & \cdots & s_{A,0;A,N}\\
-    s_{0,1;0,0} & s_{0,1;1,0} & \cdots & s_{0,1;A,0} & s_{0,1;0,1} & s_{0,1;1,1} & \cdots & s_{0,1;A,N}\\
-    s_{1,1;0,0} & s_{1,1;1,0} & \cdots & s_{1,1;A,0} & s_{1,1;0,1} & s_{1,1;1,1} & \cdots & s_{1,1;A,N}\\
-    \vdots & \vdots & & \vdots & \vdots &\vdots & & \vdots\\
-    s_{A,N;0,0} & s_{A,N;1,0} & \cdots & s_{A,N;A,0} & s_{A,N;0,1} & s_{A,N;1,1} & \cdots & s_{A,N;A,N}\\
-\end{bmatrix}$$
+\begin{equation*}
+    S_{i,j;k,l}=\begin{cases}
+        S_{i,j;i;j}=-\mu(i)-\lambda(i)\\
+        S_{k-1,l;k,l}=\lambda(k-1)\\
+        S_{k+1,l;k,l}=\mu(k+1)\frac{l}{N}\\
+        S_{k+1,l-1;k,l}=\mu(k+1)\frac{N-(l-1)}{N}\\
+        0\;\;\mathrm{otherwise}
+    \end{cases}
+\end{equation*}
 
-Element $s_{i,j;k,l}$ relates $q_{i,j}$ with $\dot{q}_{k,l}$:
-
-$$s_{i,j;k,l}=\begin{cases}
-    s_{i,j;i;j}=-\mu(i)-\lambda(i)\\
-    s_{k-1,l;k,l}=\lambda(k-1)\\
-    s_{k+1,l;k,l}=\mu(k+1)\frac{l}{N}\\
-    s_{k+1,l-1;k,l}=\mu(k+1)\frac{N-(l-1)}{N}\\
-    0\;\;\mathrm{otherwise}
-\end{cases}
-$$
+\begin{figure}
+    \caption{Evolution of $N_w$ distribution for a pasture of size $A=$, for (a) $N=$ and (b) $N=$.}
+    \label{fig:q_nw_evolution}
+    \includegraphics{stochastic/q_nw_evolution}
+\end{figure}
 
 \begin{thebibliography}{1}
 
