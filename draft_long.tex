@@ -22,8 +22,9 @@
 
 \begin{document}
 \maketitle
+\section{Introduction}
 
-\textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in \textit{Minecraft} Java edition version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared to gather wool, and must eat grass to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
+\textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in Minecraft version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. Sheep can be sheared to gather wool, and must eat grass to regrow their wool after shearing. Grass blocks are converted to dirt after being eaten, and may be converted back to grass by other adjacent grass blocks. If a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. However, if the pasture is not densely packed, wool production will still be low because there are not many sheep. Between these two extremes, there is an optimal sheep population that will maximize wool output.
 
 \section{Deterministic model}
 
@@ -49,7 +50,7 @@ The rate at which grass grows not as simple. If $N_g$ is small, then grass growt
 
 Where $y(t)$ is the population at time $t$, $k$ is a parameter representing the reproduction rate of the population and $p$ is the carrying capacity, the maximum population that the local environment can sustain.
 
-The logistic model is one of the oldest models for population growth. It was proposed in 1838 \cite{verhulst} as an improvement to the older exponential (or \textit{Malthusian}) model. It is useful as a tool of instruction, but has since been succeeded by more sophisticated and comprehentive models. However, we are not dealing with real-world ecology, but a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. Let's define $\lambda$ as the grass growth rate. Our population of interest is the number of grass blocks in the pasture $N_g$, and the carrying capacity is $A$:
+The logistic model is one of the oldest models for population growth. It was born from the older exponential (or \textit{Malthusian}) model, but modified to include a maximum population size. It is useful as a tool of instruction, but has since been succeeded by more sophisticated and comprehentive models. However, we are not dealing with real-world ecology, but a video game which has simple population mechanics. Therefore the model is appropriate for our purposes. Let's define $\lambda$ as the grass growth rate. Our population of interest is the number of grass blocks in the pasture $N_g$, and the carrying capacity is $A$:
 
 \begin{equation}
     \label{grass_regrow}
@@ -323,18 +324,18 @@ Then:
 
 $$\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$$
 
-All that's left to do now is to pick values for $N$ and $A$ and an initial value for $N_g$ and solve. This is most easily done numerically, as has been done here using the Runge-Kutta method. \textit{Minecraft} pastures typically begin fully covered with grass, so we will assume $\mathbf{p}(0)=[0, 0, 0 \dots 1]$.
+All that's left to do now is to pick values for $N$ and $A$ and an initial value for $N_g$ and solve. This is most easily done numerically, as has been done here using the Runge-Kutta method.
 
 \begin{figure}
-    \caption{Expected value of $N_g$ at $t=10000$, for $A=100$ and $A=500$. $A^*$ from the deterministic model is shown as a dotted line.}
+    \caption{Expected value of $N_g$ at $t=10000$, for two values of $A$. $A^*$ from the deterministic model is shown as a dotted line.}
     \label{fig:stochastic_Ng}
     \includegraphics{stochastic/expected_N_g_vs_N}
     \centering
 \end{figure}
 
-Figure \ref{fig:stochastic_Ng} shows the expected value of $N_g$ after 10000 seconds. We can already see the stochastic model deviating from the deterministic model. At values of $N$ close to $\frac{Ak}{R}$, the expected grass population density is lower than predicted by the deterministic model.
+We can already see the stochastic model deviating from the deterministic model. At values of $N$ close to $\frac{Ak}{R}$, the expected grass population density is lower than predicted by the deterministic model.
 
-Let's look in a little more detail at the behavior of the pasture. Figure \ref{fig:evolution} shows the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture. Both pastures begin with $N_g=A$, i.e. $\textbf{p}=[0, 0, 0, \dots 0, 1]$. The pasture with $N=40$ approaches a stable distribution, evidenced by the indistinguishable distributions at $t=1600$ s and $t=9500$ s. In contrast, the pasture with $N=70$ continues evolving toward smaller and smaller grass populations, with $p_0$ increasing dramatically as time proceeds.
+Let's look in a little more detail at the behavior of the pasture. Figure \ref{fig:evolution} shows the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture. Both pastures begin with $N_g=A$, i.e. $\textbf{p}=[0, 0, 0, \dots 0, 1]$. The pasture with $N=40$ approaches a stable state, evidenced by the indistinguishable distributions at $t=1600$ s and $t=9500$ s. In contrast, the pasture with $N=70$ continues evolving toward smaller and smaller grass populations, with $p_0$ increasing dramatically as time proceeds.
 
 \begin{figure}
     \caption{Evolution of $N_g$ distribution for a pasture of size $A=100$, for (a) $N=40$ and (b) $N=70$.}
@@ -347,7 +348,7 @@ The reason for this isn't hard to see by considering the equation for $\dot{p}_0
 
 $$\dot{p}_0(t)=p_1(t)\mu(1)$$
 
-Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium state is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may remain at a different \textit{metastable} (or \textit{quasi-equilibrium}) distribution if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}a. The distribution for $N=40$ "stabilizes" with a value of $p_1$ so low that $\dot{p}_0$ remains negligible. The metastable distribution can be also approximated analyically \cite{bartlet_gower_leslie} (see also \cite{matis_kiffe} section 6.8.2).
+Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium distribution is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. the grass has become exinct. However, even if this is the equilibrium state, the pasture may remain at a different \textit{metastable} state if the probability of extinction remains negligible across reasonable time scales. This is what is seen in figure \ref{fig:evolution}a. The distribution for $N=40$ "stabilizes" with a value of $p_1$ so low that $\dot{p}_0$ remains negligible. The metastable distribution can be also approximated analyically \cite{bartlet_gower_leslie} (see also \cite{matis_kiffe} section 6.8.2).
 
 Rapid grass extinction at high sheep densities poses a problem, since the slow farmer deterministic model predicts that the optimal $N$ increases as $T$ increases (see figure \ref{fig:fslow_optimal}). Fortunately, an exact solution can be obtained for the expected time to extinction ETE. Let $\mathbf{M}$ be a matrix of mean residence times, such that the element $m_{ij}$ of $\mathbf{M}$ is the expected amount of time the pasture spends with $N_g=j$ before reaching extinction, given that it began with a population $i$. It can be shown \cite{matis_wehrly_metzler} that $\mathbf{M}$ is obtained by removing the first row and column from $\mathbf{R}$ and taking the negative of the inverse of this modified $\mathbf{R}$ matrix. Denoting the modified $\mathbf{R}$ matrix $\mathbf{R}^\dagger$:
 
@@ -359,14 +360,7 @@ $$\mathrm{ETE}=\sum_{j}m_{Aj}$$
 
 We can apply this solution to obtain the ETE for any value of $N$ and $A$, as demonstrated in figure \ref{fig:ext_time}. For populations close to the deterministic sheep population limit $\frac{N}{A}=\frac{k}{R}=0.869$, the ETE is on the order of a few hours for all three pasture sizes. As the sheep population density decreases, the ETE increases dramatically - For a 100 block pasture with a sheep density of 0.5, the ETE is on the order of several years. ETE also increases dramatically with larger pastures - A 100-block pasture with sheep density 0.7 has ETE on the order of a few hours, while a 500-block pasture with the same density has ETE on the order of months.
 
-\begin{figure}
-    \caption{Expected time to extinction for pastures of $A=100$, $200$, and $500$ as a function of sheep population density.}
-    \label{fig:ext_time}
-    \includegraphics{stochastic/ext_time}
-    \centering
-\end{figure}
-
-We have seen that pastures with long ETE, such as the one depicted in Figure \ref{fig:evolution}a, approach a metastable distribution as they evolve. This distribution can actually be calculated analytically. The pasture will cease evolving when all $\dot{p}_x=0$. This implies that the likelihood of the pasture having $N_g=x$ and losing one grass block equals the probability of $N_g=x-1$ and growing one grass block \cite{bartlet_gower_leslie}. In symbols:
+Let's now turn our attention to the metastable, or quasi-equilibrium, state of the pasture. The pasture will cease evolving when all $\dot{p}_x=0$. This implies that the likelihood of the pasture having $N_g=x$ and losing one grass block equals the probability of $N_g=x-1$ and growing one grass block \cite{bartlet_gower_leslie}. In symbols:
 
 \begin{equation}
     \label{recursive_relation}
@@ -386,43 +380,134 @@ We will assume $N_g=0$ is an unreachable state and exclude it from consideration
     \end{cases}
 \end{equation}
 
-We can solve (\ref{quasi_eq_system}) to obtain the metastable $N_g$ distribution. Figure \ref{fig:quasi_eq} shows the metastable distribution for a few select conditions. The metastable distribution predicted by (\ref{quasi_eq_system}) closely matches the numerical solution of the Kolmogorov equations for $t=10000$ in all cases except $A=100$, $N=65$. In that case, the ETE is not sufficiently long to allow a metastable distribution to exist. (\ref{quasi_eq_system}) also produces unrealistic results in this case - the distribution shows an increase in $p_x$ for small $x$; such a distribution would not actually be metastable.
+We can solve (\ref{quasi_eq_system}) to obtain the metastable $N_g$ distribution. Figure \ref{fig:quasi_eq} shows the metastable distribution for a few select conditions. There are a few important features to note. First, figure \ref{fig:quasi_eq} shows both the metastable distribution predicted by (\ref{quasi_eq_system}) and numerical solutions of the Kolmogorov equations for $t=10000$. The results match in each case except for the case $A=100$, $N=65$. In that case, the numerical solution has already begin to approach extinction. This is the only case in which the metastable $p_1$ is significant, and it is also the only case in which $p_0$ is significant in the numerical solution. Intuitively, one might gather that for conditions where the metastable $p_1$ is significant, the pasture will not remain in the metastable state for long as $p_0$ will rapidly increase.
+
 
 \begin{figure}
-    \caption{Metastable population distributions for pastures of size (a) $A=100$ and (b) $A=500$, for three different sheep population densities. Numerical results are shown as dotted lines.}
-    \label{fig:quasi_eq}
-    \includegraphics[]{stochastic/quasi_eq_comparison}
+    \caption{Expected time to extinction for pastures of $A=100$, $200$, and $500$ as a function of sheep population density.}
+    \label{fig:ext_time}
+    \includegraphics{stochastic/ext_time}
+    \centering
 \end{figure}
 
 \subsection{The fast farmer}
 
-The mechanics of the fast farmer are rather simple. The expected value of $E[F_{fast}]=E[\mu]$, and since $\mu$ is directly proportional to $N_g$, $E[F_{fast}]$ can be calculated by simply plugging $E[N_g]$ into equation \ref{sheep_eat}. Figure \ref{fig:stochastic_Ng} shows that $E[N_g]$ predicted by the Kolmogorov equations does not differ substantially from $A*$ from the deterministic model unless the ETE is low.
-
 \subsection{The slow farmer}
 
-It seems natural at this point to pursue an analysis of the slow farmer with Kolmogorov equations. However, this is a daunting task. We have two variables, $N_g$ and $N_w$, evolving simultaneously. We can construct a system of Kolmogorov equations for this situation, considering each combination of $N_g$ and $N_w$ as a possible state of the pasture. This will lead to a system of $(A+1)(N+1)$ equations.
+It seems like a natural next step to pursue an analysis of the slow farmer situation with Kolmogorov equations. However, this analysis is not so simple. We now have two variables evolving at the same time, $N_g$ and $N_w$. Therefore, we will need to consider a bivariate probability distribution. As before, we will denote this as $p_{x,y}(t)$:
 
-If we want to apply this analysis to the same conditions as the fast farmer, we will have at most $(500+1)(425+1)=213426$ simultaneous equations, and a coefficient matrix with as many rows and columns. Such a matrix would occupy 182 GB of memory if stored as 64-bit floats, not to mention, the system of equations is now so large that computation becomes intractable. Some degree of simplification will need to be made, and analysis of the resulting model will be long, so this task is deferred for later.
+$$p_{x,y}(t)=\Pr(N_g(t)=x, N_w(t)=y)$$
 
-\section{What next?}
+Consider a pasture at time $t_0$, with $N_g(t_0)=x$ and $N_w(t_0)=y$. A short time ago, at time $t=t_0-\Delta t$, the pasture had $N_g(t_0-\Delta t)$ and $N_w(t_0-\Delta t)$. The pasture may have arrived at the state at $t_0$ in one of several ways:
 
-The logistic model, and the Kolmogorov equations, have proven useful for predicting the behavior of a pasture in \textit{Minecraft}. However, there are a few assumptions we made that leave unanswered questions.
+\begin{itemize}
+    \item $N_g(t_0-\Delta t)=N_g(t_0)$ and $N_w(t_0-\Delta t)=N_w(t_0)$, and neither eating nor growth take place.
+    \item $N_g(t_0-\Delta t)=N_g(t_0)-1$ and $N_w(t_0-\Delta t)=N_w(t_0)$, and one grass block regrows.
+    \item $N_g(t_0-\Delta t)=N_g(t_0)+1$ and one grass block is eaten:\begin{itemize}
+        \item $N_w(t_0-\Delta t)=N_w(t_0)$, and the sheep that ate the grass already had its wool.
+        \item $N_w(t_0-\Delta t)=N_w(t_0)-1$, and the sheep that ate the grass did not previously have wool.
+    \end{itemize}
+    \item Two or more growth and eating events occur.
+\end{itemize}
 
-First, time in \textit{Minecraft} is discretized into increments of 0.05 seconds, while we have been modelling the pasture with continuous-time processes. What, if any, effect would this have on the behavior of the pasture, as compared to the behavior predicted by continuous-time models?
+As with the fast-farmer model, the probability of each path is the probability of the pasture existing at the required initial state, times the probability of the required change occuring. For the two cases involving one block of grass being eaten, the probability of the event will include a term pertaining to the number of sheep who have their wool. The probability of the pasture arriving at $N_g=x$ and $N_w=y$ is the sum of the probabilities of each path:
 
-Second, a pasture in \textit{Minecraft} is typically constructed by fencing off an area of grass from a larger meadow. Grass can spread under fences, effectively introducing an immigration term to the logistic model that is nonzero even when the grass in the pasture is extinct. Such a model is studied in \cite{matis_kiffe} chapter 7, but the deterministic model becomes rather unwieldy, so the effect of immigration was ignored here. However, introducing immigration would have an important effect on the behavior of the pasture for small $N_g$, when $\lambda$ is otherwise small.
+\begin{equation*}
+    \begin{split}
+        p_{x,y}(t)&=p_{x,y}(t-\Delta t)(1-\mu(x)-\lambda(x))\Delta t\\
+        &+p_{x-1,y}(t-\Delta t)\lambda(x-1)\Delta t\\
+        &+p_{x+1,y}(t-\Delta t)\mu(x+1)\frac{y}{N}\Delta t\\
+        &+p_{x+1,y-1}(t-\Delta t)\mu(x+1)\frac{N-(y-1)}{N}\Delta t\\
+        &+O(\Delta t^2)
+    \end{split}
+\end{equation*}
 
+Subtracting $p_{x,y}(t-\Delta t)$, dividing by $\Delta t$, and taking the limit $\Delta t \rightarrow 0$:
 
+\begin{equation}
+    \label{p_xy_dot}
+    \begin{split}
+        \dot{p}_{x,y}(t)&=p_{x,y}(t)(-\mu(x)-\lambda(x))\\
+        &+p_{x-1,y}(t)\lambda(x-1)\\
+        &+p_{x+1,y}(t)\mu(x+1)\frac{y}{N}\\
+        &+p_{x+1,y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}
+    \end{split}
+\end{equation}
+
+We will have one equation for each combination of $N_g$ and $N_w$, i.e. $(N+1)(A+1)$ equations. It's tempting to proceed by coming up with a matrix of $p_{x,y}$ and some tensor of coefficients relating them, but let's step back and remember that we are going to be solving this system numerically. A pasture of $A=200$ and $N=100$ will require a system of 20301 equations. In principle, a system of simultaneous differential equations of any size can be solved numerically with enough processor time, but in practice, a system of this size will take inconveniently long to solve on an average personal computer.
+
+Recall that when we were analyzing the deterministic slow farmer model, we assumed that the pasture had already reached equilibrium. We saw in the previous section that pastures with long ETE will assume a metastable distribution. Therefore we will try to simplify this system of equations by assuming the pasture has reached a metastable distribution.
+
+$p_{x,y}$ is the probability of the joint event of $N_g=x$ and $N_w=y$. Assuning the events are independent, we can rewrite $p_{x,y}$ as:
+
+$$p_{x,y}=p_xq_y$$
+
+Where $p_x=\Pr(N_g=x)$ and $q_y=\Pr(N_w=y)$.
+
+We can rewrite (\ref{p_xy_dot}) with this in mind:
+
+\begin{equation*}
+    \begin{split}
+        \dot{p}_{x,y}(t)=p_x\dot{q}_y(t)&=p_xq_y(t)(-\mu(x)-\lambda(x))\\
+        &+p_{x-1}q_y(t)\lambda(x-1)\\
+        &+p_{x+1}q_y(t)\mu(x+1)\frac{y}{N}\\
+        &+p_{x+1}q_{y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}
+    \end{split}
+\end{equation*}
+
+We'll assume $p_x$ is time-independent, so $\frac{d(p_xq_y)}{dt}=p_x\frac{dq_y}{dt}$.
+
+Summing $p_{x,y}$ over all $x$ gives $q_y$, therefore, summing $\dot{p}_{x,y}$ over all $x$ gives $\dot{q}_y$:
+
+%can i find a way to make these brackets big?
+
+\begin{equation}
+    \begin{split}
+        \dot{q}_y(t)=\sum_{x=0}^{A}\dot{p}_{x,y}=\sum_{x=0}^{A}[&p_xq_y(t)(-\mu(x)-\lambda(x))\\
+        &+p_{x-1}q_y(t)\lambda(x-1)\\
+        &+p_{x+1}q_y(t)\mu(x+1)\frac{y}{N}\\
+        &+p_{x+1}q_{y-1}(t)\mu(x+1)\frac{N-(y-1)}{N}]
+    \end{split}
+\end{equation}
+
+By summing across all $x$, we have reduced our system of equations to size $N+1$. We can express our system in vector form, as before:
+
+$$\mathbf{q}(t)=[q_0(t), q_1(t), q_2(t), \dots q_N(t)]$$
+
+$$\dot{\mathbf{q}}(t)=\mathbf{q}(t)\mathbf{R}$$
+
+The coefficient $r_{i,j}$ relates $q_i$ with $\dot{q}_j$:
+
+%employ recurrence relation here
+
+\begin{equation*}
+    r_{i,j}=\begin{cases}
+        r_{j,j}=\sum_{x=0}^{A}[p_x(-\mu(x)-\lambda(x))+p_{x-1}\lambda(x-1)+p_{x+1}\mu(x+1)\frac{j}{N}]\\
+        r_{j-1,j}=\sum_{x=0}^{A}p_{x+1}\mu(x+1)\frac{N-(j-1)}{N}
+    \end{cases}
+\end{equation*}
+
+\begin{equation*}
+    r_{i,j}=\begin{cases}
+        r_{j,j}=\sum_{x=0}^{A}[-p_x\mu(x)-p_x\lambda(x)+p_{x-1}\lambda(x-1)+p_{x+1}\mu(x+1)\frac{j}{N}]\\
+        r_{j-1,j}=\sum_{x=0}^{A}p_{x+1}\mu(x+1)\frac{N-(j-1)}{N}
+    \end{cases}
+\end{equation*}
+
+\begin{equation*}
+    r_{i,j}=\begin{cases}
+        r_{j,j}=\sum_{x=0}^{A}[-p_x\lambda(x)+p_{x+1}\mu(x+1)\frac{j}{N}]\\
+        r_{j-1,j}=\sum_{x=0}^{A}p_{x+1}\mu(x+1)\frac{N-(j-1)}{N}
+    \end{cases}
+\end{equation*}
 
 \begin{thebibliography}{1}
 
     \bibitem{matis_kiffe} Matis, James, and Thomas Kiffe, eds. Stochastic Population Models: A Compartmental Perspective. 1st ed. Lecture Notes in Statistics. New York: Springer, n.d.
 
-    \bibitem{matis_wehrly_metzler} Matis, J. H., T. E. Wehrly, and C. M. Metzler. “On Some Stochastic Formulations and Related Statistical Moments of Pharmacokinetic Models.” Journal of Pharmacokinetics and Biopharmaceutics 11, no. 1 (1983): 77-92. https://doi.org/10.1007/BF01061769.
+    \bibitem{matis_wehrly_metzler} Matis, J. H., T. E. Wehrly, and C. M. Metzler. “On Some Stochastic Formulations and Related Statistical Moments of Pharmacokinetic Model.” Journal of Pharmacokinetics and Biopharmaceutics 11, no. 1 (1983): 77-92. https://doi.org/10.1007/BF01061769.
 
     \bibitem{bartlet_gower_leslie} Bartlett, M. S., J. C. Gower, and P. H. Leslie. “A Comparison of Theoretical and Empirical Results for Some Stochastic Population Models.” Biometrika 47, no. 1-2 (June 1, 1960): 1-11. https://doi.org/10.1093/biomet/47.1-2.1.
-
-    \bibitem{verhulst} Verhulst, P. “Notice sur la loi que la population suit dans son accroissement.” Correspondance Mathematique et Physique 10 (1838): 113-21.
 
 \end{thebibliography}
 
