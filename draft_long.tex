@@ -414,7 +414,7 @@ As with the fast-farmer model, the probability of each path is the probability o
 
 \begin{equation*}
     \begin{split}
-        p_{x,y}(t)&=p_{x,y}(t-\Delta t)(1-\mu(x)-\lambda(x))\Delta t\\
+        p_{x,y}(t)&=p_{x,y}(t-\Delta t)(1-\mu(x)\Delta t-\lambda(x)\Delta t)\\
         &+p_{x-1,y}(t-\Delta t)\lambda(x-1)\Delta t\\
         &+p_{x+1,y}(t-\Delta t)\mu(x+1)\frac{y}{N}\Delta t\\
         &+p_{x+1,y-1}(t-\Delta t)\mu(x+1)\frac{N-(y-1)}{N}\Delta t\\
