@@ -35,11 +35,7 @@ Players can gather blocks of wool by raising a flock of sheep in a pasture (Figu
     \includegraphics[width=\textwidth]{2023-12-15_22.16.38}
 \end{figure}
 
-One may be tempted to pack the pasture as densely as possible to maximize space efficiency. However, if a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. On the other hand, if the pasture is not densely packed, wool production will still be low because there are not many sheep. To understand where the happy medium lies, population models were developed for the grass and sheep populations.
-
-\subsection{Deterministic vs. Stochastic}
-
-Models of biological populations can be broadly divided into \textit{deterministic} and \textit{stochastic}. Deterministic models are simpler to analyze, but stochastic models are generally more informative since biological populations, both in real life and in \textit{Minecraft}, are stochastic processes. In the real world, populations are influenced by random ecological events, and in \textit{Minecraft}, the growth of grass and the appetite of sheep are governed by random number generation.
+One may be tempted to pack the pasture as densely as possible to maximize space efficiency. However, if a pasture is packed too densely with sheep, they will deplete the grass, and wool production will be low. On the other hand, if the pasture is not densely packed, wool production will still be low because there are not many sheep. A mathematical population model can give insight into the happy medium sheep population.
 
 \section{Table of symbols}
 \begin{center}
@@ -50,7 +46,7 @@ Models of biological populations can be broadly divided into \textit{determinist
         $N_g$ & Grass population\\
         $\lambda$ & Grass growth rate\\
         $\mu$ & Grass consumption rate\\
-        $k$ & Grass growth rate constant\\
+        $a$ & Grass growth rate constant\\
         $R$ & Grass consumption rate constant\\
         $P$ & Pasture carrying capacity\\
         $p_x$ & Probability distribution of $N_g$\\
@@ -60,7 +56,6 @@ Models of biological populations can be broadly divided into \textit{determinist
 \end{center}
 
 \section{Deterministic model}
-
 \subsection{Grass population}
 
 The \textit{Minecraft} physics engine operates in discrete time increments of 0.05 seconds, called \textit{ticks}. Here, this will be approximated as a continuous-time process.
@@ -73,48 +68,40 @@ Sheep randomly attempt to eat the block they're standing on. If the sheep and gr
 
 Where $A$ is the size of the pasture, $N_g$ is the number of grass blocks in the pasture, $N$ is the number of sheep, and $R$ is the frequency with which an individual sheep attempts to eat.
 
-Grass blocks randomly spread to adjacent dirt blocks. If $N_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $N_g$ is large, grass growth will be limited by a lack of places for the grass to spread \textit{to}. A simple approach is to assume the growth rate $\lambda$ has a parabolic dependence on $N_g$:
-\begin{equation*}
-    \label{}
-    \lambda=kN_g-jN_g^2
-\end{equation*}
-
-The growth rate must be zero for $N_g=0$ and $N_g=A$, which requires $j=\frac{k}{A}$:
+Grass blocks randomly spread to adjacent dirt blocks. If $N_g$ is small, then grass growth will be limited by the lack of places the grass can spread \textit{from}. If $N_g$ is large, grass growth will be limited by a lack of places for the grass to spread \textit{to}. A simple approach is to assume the growth rate $\lambda$ has a parabolic dependence on $N_g$, such that $\lambda=0$ for $N_g=0$ and $N_g=A$:
 \begin{equation}
     \label{growth_rate}
-    \lambda=kN_g-\frac{k}{A}N_g^2
+    \lambda=aN_g-\frac{a}{A}N_g^2
 \end{equation}
 
-This leaves $k$ as a constant related to the rate at which grass spreads.
+Where $a$ is a constant related to the rate at which grass spreads.
 
 The overall rate of change of $N_g$ is the difference of $\lambda$ and $\mu$:
 \begin{equation}
     \label{logistic}
-    \dot{N}_g=\lambda-\mu=\left(k-\frac{NR}{A}\right)N_g-\frac{k}{A}N_g^2
+    \dot{N}_g=\lambda-\mu=\left(a-\frac{NR}{A}\right)N_g-\frac{a}{A}N_g^2
 \end{equation}
 
-This model, in which $\dot{N}_g$ has quadratic dependence on $N_g$, is known as the \textit{logistic} model. This model is one of the oldest models for population growth, originally proposed in 1838 \cite{verhulst}. It has since been joined by many more general models \cite{banks} which are more useful for real-world ecology, but since we are modelling a video game, we will employ it for its simplicity.
+This is the \textit{logistic} model \cite{verhulst}, one of the earliest and simplest models for population growth. It is seldom employed for real-life ecology, having been supplanted by more intricate and flexible models \cite{banks}, but it is applicable here due to the simple mechanics of \textit{Minecraft}.
 
 The exact solution \cite{banks} of equation \ref{logistic} is:
 \begin{equation}
     \label{logistic_soln}
-    N_g(t)=\frac{P}{1+\left(\frac{P}{N_g(0)}-1\right)e^{-\left(k-\frac{NR}{A}\right)t}}
+    N_g(t)=\frac{P}{1+\left(\frac{P}{N_g(0)}-1\right)e^{-\left(a-\frac{NR}{A}\right)t}}
 \end{equation}
 
 Where
 \begin{equation*}
-    P=A-\frac{NR}{k}
+    P=A-\frac{NR}{a}
 \end{equation*}
 
-Note that the population asymptotically approaches $P$ as $t\rightarrow\infty$. In ecology, $P$ is known as the carrying capacity, the maximum population that a habitat can sustain in equilibrium. This is not to be confused with $A$, the number of blocks in the pasture and therefore the maximum number of grass blocks it can contain.
-
-Note also that for $N\geq \frac{Ak}{R}$, the carrying capacity is 0.
+The population asymptotically approaches $P$ as $t\rightarrow\infty$. In ecology, $P$ is known as the carrying capacity, the maximum population that a habitat can sustain in equilibrium. This is not to be confused with $A$, the number of blocks in the pasture and therefore the maximum number of grass blocks it can contain. Note also that for $N\geq \frac{Aa}{R}$, the carrying capacity is 0.
 
 \subsection{Experimental determination of rate constants}
 
-The actual values of $k$ and $R$ were determined with in-game experiments. $R$ was measured by counting the number of grass blocks eaten by sheep. In 1 hour, 10 sheep ate 320 blocks of grass, which gives $R=0.00888$ $s^{-1}$.
+The actual values of $a$ and $R$ were determined with in-game experiments. $R$ was measured by counting the number of grass blocks eaten by sheep. In 1 hour, 10 sheep ate 320 blocks of grass, which gives $R=0.00888\mathrm{\;s^{-1}}$.
 
-$k$ was measured by uniformly dispersing 100 grass blocks in a 900-block dirt patch and tracking the grass population over time. The grass growth was then fit to equation \ref{logistic_soln}. This fit gave $k=0.00772$ $s^{-1}$. More details about these experiments can be found on the author's Github\footnote{github.com/}.
+$a$ was measured by uniformly dispersing 100 grass blocks in a 900-block dirt patch and tracking the grass population over time. The grass growth was then fit to equation \ref{logistic_soln}. This fit gave $a=0.00772\mathrm{\;s^{-1}}$. More details about these experiments can be found on the author's Github\footnote{github.com/}.
 
 \begin{figure}
     \label{fig:grass_logistic_fit}
@@ -128,17 +115,19 @@ $k$ was measured by uniformly dispersing 100 grass blocks in a 900-block dirt pa
 A naïve assumption is that the farmer has superhuman speed, and shears each sheep the instant it grows its wool. In this case, the rate at which wool is gathered\footnote{Shearing a sheep actually yields between 1-3 blocks of wool, but this is out of the player's control, so it is assumed here that a sheep always yields one wool.} is equal to $\mu$. Denoting the rate of wool gathering with $F$, and substituting $N_g=P$ into equation \ref{sheep_eat} (assuming the pasture has equilibrated):
 \begin{equation}
     \label{ffast}
-    F_{fast}=\mu=NR-\frac{N^2R^2}{Ak}
+    F_{fast}=\mu=NR-\frac{N^2R^2}{Aa}
 \end{equation}
 
-This is a simple parabolic relationship with a maximum value of $F_{fast}=\frac{Ak}{4}$ at $N=\frac{Ak}{2R}$.
+This is a simple parabolic relationship with a maximum value of $F_{fast}=\frac{Aa}{4}$ at $N=\frac{Aa}{2R}$.
 
-\textit{Minecraft} players typically don't want to put all of their time into shearing their sheep as quickly as they can. A more realistic assumption is that the farmer shear the sheep periodically and at regular intervals. If the farmer shears the sheep with period $T$, the rate at which they gather wool is:
+A more realistic assumption is that the farmer shears the sheep periodically and at regular intervals. If the farmer shears the sheep with period $T$, the rate at which they gather wool is:
 \begin{equation*}
     F_{slow}=\frac{N_w(T)}{T}
 \end{equation*}
 
-Analyzing this model requires analyzing the evolution of $N_w$ with time. A sheep will only regrow wool upon eating if it doesn't already have any, so we should expect that the rate at which sheep are regrowing wool is the rate at which they are eating, $\mu$, times the fraction of sheep that are wool-less:
+Where $N_w(t)$ is the number of woolly sheep in the pasture at time $t$.
+
+Analyzing this model requires analyzing the evolution of $N_w$ with time. A sheep will only regrow wool upon eating if it doesn't already have any, so one should expect that the rate at which sheep regrow wool is proportional to the number that are woolless:
 \begin{equation}
     \label{n_w_dot}
     \dot{N}_w=\frac{N-N_w}{N}\mu=(N-N_w)\frac{RN_g}{A}
@@ -146,25 +135,25 @@ Analyzing this model requires analyzing the evolution of $N_w$ with time. A shee
 
 Solving equation \ref{n_w_dot} with the condition $N_w(0)=0$, and assuming $N_g=P$ (and is therefore time-independent) yields:
 \begin{equation*}
-    N_w(T)=N-Ne^{-TR+\frac{TR^2N}{Ak}}
+    N_w(T)=N-Ne^{-TR+\frac{TR^2N}{Aa}}
 \end{equation*}
 
 Therefore:
 \begin{equation}
     \label{fslow}
-    F_{slow}=\frac{N-Ne^{-TR+\frac{TR^2N}{Ak}}}{T}
+    F_{slow}=\frac{N-Ne^{-TR+\frac{TR^2N}{Aa}}}{T}
 \end{equation}
 
 The optimal $N$ can be found by differentiating equation \ref{fslow} w.r.t. $N$, setting $\frac{dF_{slow}}{dN}=0$, and solving for $N$:
 \begin{equation}
     \label{fslow_optimal_n}
-    N=\frac{Ak}{TR^2}(W(e^{TR+1})-1) 
+    N=\frac{Aa}{TR^2}(W(e^{TR+1})-1) 
 \end{equation}
 
-Where $W$ is the Lambert $W$ function, which satisfies $W(xe^x)=x$. Plugging this back into equation \ref{fslow}, we obtain the value of $F_{slow}$ at optimal $N$:
+Where $W$ is the Lambert $W$ function, which satisfies $W(xe^x)=x$. Plugging this back into equation \ref{fslow} gives the value of $F_{slow}$ at optimal $N$:
 \begin{equation}
     \label{fslow_at_optimal_n}
-    F_{slow}=\frac{Ak(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}
+    F_{slow}=\frac{Aa(W(e^{TR+1})-1)(1-e^{-TR+W(e^{TR+1})-1})}{R^2T^2}
 \end{equation}
 
 Figure \ref{fig:fslow} shows a plot of equations \ref{fslow}-\ref{fslow_at_optimal_n}. As $T$ increases, the optimal sheep population also increases, and the optimal rate of wool gathering decreases. Clearly there is a tradeoff between the frequency with which the farmer shears the flock and the rate at which they gather wool.
@@ -176,17 +165,12 @@ Figure \ref{fig:fslow} shows a plot of equations \ref{fslow}-\ref{fslow_at_optim
     \centering
 \end{figure}
 
-For small $T$, $F_{slow}\approx F_{fast}$. This can be shown quantitatively by employing a first-order approximation for $e^x$, for $x\approx 0$:
+For small $T$, $F_{slow}\approx F_{fast}$. This can be shown quantitatively by employing a first-order approximation for $e^x$, for $x\approx 0$: $e^x\approx x+1$. In equation \ref{fslow}, the exponent is small for small values of $T$, therefore:
 \begin{equation*}
-    e^x\approx x+1
+F_{slow}\approx \frac{N-N(-TR+\frac{TR^2N}{Aa}+1)}{T}=NR-\frac{N^2R^2}{Aa}=F_{fast}
 \end{equation*}
 
-In equation \ref{fslow}, the exponent is small for small values of $T$, therefore:
-\begin{equation*}
-F_{slow}\approx \frac{N-N(-TR+\frac{TR^2N}{Ak}+1)}{T}=NR-\frac{N^2R^2}{Ak}=F_{fast}
-\end{equation*}
-
-It appears in Figure \ref{fig:fslow} that for large $T$ and small $N$, $F_{slow}$ is approximately linear w.r.t. $N$. Under these conditions, all of the sheep have regrown their wool by the time the farmer comes back, and $N_w(T)\approx N$. The exponent $-TR+\frac{TR^2N}{Ak}$ in equation \ref{fslow} is large and negative, so $F_{slow}\approx \frac{N-0}{T}=\frac{N}{T}$. Lines of $\frac{N}{T}$ are plotted over top of the curves in Figure \ref{fig:fslow}.
+It appears in Figure \ref{fig:fslow} that for large $T$ and small $N$, $F_{slow}$ is approximately linear w.r.t. $N$. Under these conditions, all of the sheep have regrown their wool by the time the farmer comes back, and $N_w(T)\approx N$. Lines of $\frac{N}{T}$ are plotted over top of the curves in Figure \ref{fig:fslow}.
 
 \section{Stochastic model}
 
@@ -203,8 +187,6 @@ Consider a pasture at time $t=t_0$, with $N_g(t_0)=x$. A short time ago, at time
 \end{enumerate}
 
 The probability of each pathway is the probability that the pasture was in the required state $N_g(t_0-\Delta t)$ times the probability of the event (eating or growth) required to bring the pasture to $N_g(t_0)=x$.
-
-%can this paragraph be shorter
 
 $\lambda$ and $\mu$ are the expected number of grass blocks that regrow or are consumed in unit time, respectively. For a sufficiently short time interval $\Delta t$, $\lambda\Delta t$ and $\mu\Delta t$ are the probability that one grass block regrows or is consumed in time $\Delta t$, respectively. This gives the probability of nothing happening in time $\Delta t$ as $(1-\lambda\Delta t-\mu\Delta t)$. The probability of two or more events is some product of $\lambda\Delta t$ and $\mu\Delta t$, and is therefore dependent on $\Delta t$ with order 2 or higher.
 
@@ -259,7 +241,7 @@ Figure \ref{fig:stochastic_Ng} compares the expected value of $N_g$ after 10000 
     \centering
 \end{figure}
 
-Figure \ref{fig:evolution} shows the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture. The pasture with $N=40$ approaches a stable distribution, evidenced by the indistinguishable distributions at $t=1600$ s and $t=9500$ s. In contrast, the pasture with $N=70$ continues evolving toward smaller and smaller grass populations, with $p_0$ increasing dramatically as time proceeds.
+Figure \ref{fig:evolution} shows the evolution of the distribution of $N_g$ for $N=40$ and $N=70$ in a 100-block pasture. The $N=40$ pasture stabilizes, but the $N=70$ pasture continually evolves toward lower and lower $N_g$, with $p_0$ increasing dramatically as time proceeds.
 
 \begin{figure}
     \caption{Evolution of $N_g$ distribution for a pasture of size $A=100$, for (a) $N=40$ and (b) $N=70$.}
@@ -350,9 +332,9 @@ The biggest drawback of this model is its computational intensiveness. A model f
 
 \section{Conclusions} The logistic model, and the Kolmogorov equations, have proven useful for predicting the behavior of a pasture in \textit{Minecraft}. However, there are still a few unanswered questions.
 
-First, a pasture in \textit{Minecraft} is often constructed by fencing off an area of grass from a larger meadow (see Figure \ref{fig:pasture_photo}). Grass can spread under fences, effectively introducing an immigration term to the logistic model that is nonzero even when the grass in the pasture is extinct. Such a model is studied in \cite{matis_kiffe} chapter 7, but the deterministic model becomes rather unwieldy, so the effect of immigration was ignored here. However, introducing immigration would have an important effect on the behavior of the pasture for large $N$, since $N_g=0$ is no longer an absorbing state.
+First, grass in \textit{Minecraft} can spread under fences. Pastures typically have some degree of immigration, causing $\lambda(0)>0$. The effect of immigration was ignored here, since it makes the deterministic model unweildy (see \cite{matis_kiffe} chapter 7). However, introducing immigration would have an important effect on the behavior of the pasture for large $N$, since $N_g=0$ is no longer an absorbing state.
 
-Second, time in \textit{Minecraft} is discretized into increments of 0.05 seconds, while we have been modelling the pasture with continuous-time processes. How would a discrete-time model differ from a continuous-time model?
+Second, time in \textit{Minecraft} is discretized into increments of 0.05 seconds, while these models considered a continuous-time process. How would a discrete-time model differ from a continuous-time model?
 
 \begin{thebibliography}{1}
 
