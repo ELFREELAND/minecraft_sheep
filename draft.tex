@@ -173,46 +173,15 @@ It appears in Figure \ref{fig:fslow} that for large $T$ and small $N$, $F_{slow}
 \section{Stochastic model}
 
 \subsection{Grass population}
-A deterministic model considers population as a single number. A stochastic model considers the \textit{probability distribution} of the population. Here, a stochastic model will be developed for the grass population of the pasture, modelling the grass population as a \textit{Markov process}. The method used here is described in \cite{matis_kiffe}, and applied here for the case of the logistic model.
+A deterministic model considers population as a single number. A stochastic model considers the \textit{probability distribution} of the population. Here, the grass and sheep will be modelled with a \textit{Markov chain}. The method used here is described in \cite{matis_kiffe}, and applied here for the case of the logistic model.
 
-Consider a pasture at time $t=t_0$, with $N_g(t_0)=x$. A short time ago, at time $t=t_0-\Delta t$, the pasture had $N_g(t_0-\Delta t)$. The pasture may have arrived at $N_g(t_0)=x$ in one of four ways:
-
-\begin{enumerate}
-    \item $N_g(t_0-\Delta t)=x$, and neither eating nor growth take place.
-    \item $N_g(t_0-\Delta t)=x-1$, and one grass block regrows.
-    \item $N_g(t_0-\Delta t)=x+1$, and one sheep eats a grass block.
-    \item Two or more growth and eating events occur.
-\end{enumerate}
-
-The probability of each pathway is the probability that the pasture was in the required state $N_g(t_0-\Delta t)$ times the probability of the event (eating or growth) required to bring the pasture to $N_g(t_0)=x$.
-
-$\lambda$ and $\mu$ are the expected number of grass blocks that regrow or are consumed in unit time, respectively. For a sufficiently short time interval $\Delta t$, $\lambda\Delta t$ and $\mu\Delta t$ are the probability that one grass block regrows or is consumed in time $\Delta t$, respectively. This gives the probability of nothing happening in time $\Delta t$ as $(1-\lambda\Delta t-\mu\Delta t)$. The probability of two or more events is some product of $\lambda\Delta t$ and $\mu\Delta t$, and is therefore dependent on $\Delta t$ with order 2 or higher.
-
-Let $p_x(t)$ be the probability that the pasture has $N_g=x$ at time $t$. Then the probability of each path is:
-\begin{align*}
-    \Pr(1)=&p_x(t_0-\Delta t)(1-\lambda\Delta t-\mu\Delta t)\\
-    \Pr(2)=&p_{x-1}(t_0-\Delta t)\lambda\Delta t\\
-    \Pr(3)=&p_{x+1}(t_0-\Delta t)\mu\Delta t\\
-    \Pr(4)\approx&O(\Delta t^2)
-\end{align*}
-
-The probability of the pasture arriving at $N_g(t_0)=x$ is the sum of the probability of each pathway:
-\begin{align*}
-    p_x(t_0)&=p_x(t_0-\Delta t)(1-\lambda\Delta t-\mu\Delta t)\\
-    &+p_{x-1}(t_0-\Delta t)\lambda\Delta t\\
-    &+p_{x+1}(t_0-\Delta t)\mu\Delta t\\
-    &+O(\Delta t^2)
-\end{align*}
-
-subtracting $p_x(t_0-\Delta t)$, dividing by $\Delta t$, and taking $\lim_{\Delta t\rightarrow 0}$ converts this into a differential equation:
+Let $p_x(t)$ be the probability that the pasture has $N_g=x$ at time $t$. The time derivative of $p(x)$ is given by the differential equation:
 \begin{equation}
     \label{p_dot}
     \dot{p}_x(t)=-p_x(t)(\lambda(x)+\mu(x))+p_{x-1}(t)\lambda(x-1)+p_{x+1}(t)\mu(x+1)
 \end{equation}
 
-Note that $\mu(x)$ simply represnts the value of $\mu$ with $N_g=x$, and likewise for $\lambda$. Note also that the $O(\Delta t^2)$ term has vanished upon taking the limit $\Delta t\rightarrow 0$.
-
-A pasture of size $A$ will have a system of $A+1$ equations. Systems of equations such as these, which describe the evolution of a probability distribution with time, are known as \textit{Kolmogorov equations} \cite{matis_kiffe}. In general, Kolmogorov equations can be used to describe a \textit{Markov process}, i.e. a process by which a system transitions between multiple possible states. In this case the states are the possible values of $N_g$.
+Note that $\mu(x)$ simply represnts the value of $\mu$ with $N_g=x$, and likewise for $\lambda$. A pasture of size $A$ will have a system of $A+1$ equations, one for each $x$. Systems of equations such as these, which describe the evolution of a probability distribution with time, are known as \textit{Kolmogorov equations} \cite{matis_kiffe}. In general, Kolmogorov equations can be used to describe a \textit{Markov process}, i.e. a process by which a system transitions between multiple possible states. In this case the states are the possible values of $N_g$.
 
 In vector form, this system is expressed as $\dot{\mathbf{p}}(t)=\mathbf{p}(t)\mathbf{R}$, where $\mathbf{p}(t)=\left[p_0(t), p_1(t), p_2(t) \dots p_A(t)\right]$, and $\mathbf{R}$ is a matrix of coefficients, such that the coefficient $r_{i,j}$ relates $p_i$ with $\dot{p}_j$:
 \begin{equation*}
@@ -253,7 +222,7 @@ The reason for this is evident from the equation for $\dot{p}_0$. Beginning with
     \dot{p}_0(t)=p_1(t)\mu(1)
 \end{equation*}
 
-Since $p_1$ and $\mu(1)$ are always positive, $p_0$ is monotonically increasing, bounded above by $p_0=1$. Therefore the true equilibrium state is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. extinction. However, even if this is the equilibrium state, the pasture may remain at a different \textit{metastable} (or \textit{quasi-equilibrium}) distribution if the probability of extinction remains negligible across reasonable time scales, as seen in Figure \ref{fig:evolution}a.
+Since $p_0$ is monotonically increasing, the true equilibrium state is $\mathbf{p}=[1, 0, 0, 0, \dots]$ i.e. extinction. However, even if this is the equilibrium state, the pasture may remain at a different \textit{metastable} (or \textit{quasi-equilibrium}) distribution if the probability of extinction remains negligible across reasonable time scales, as seen in Figure \ref{fig:evolution}a.
 
 Rapid grass extinction at high sheep densities poses a problem, since the deterministic model predicts that the optimal $N$ increases as $T$ increases (Figure \ref{fig:fslow}). It can be shown \cite{matis_wehrly_metzler} (see also \cite{matis_kiffe} section 6.8.1.2.) that taking the negative inverse of the coefficient matrix for transient (i.e., nonzero) states, and summing across row $x$ gives the expected extinction time for a starting population of $x$.
 
@@ -273,16 +242,7 @@ A model for both the sheep and grass mechanics will involve a bivariate probabil
     q_{xy}(t)=\Pr(N_g(t)=x,N_w(t)=y)
 \end{equation*}
 
-For a pasture to arrive at $N_g(t+0)=x$ and $N_w(t_0)=y$, The possible events are:
-\begin{itemize}
-    \item $N_g(t-t_0)=x$, $N_w(t-t_0)=y$, and neither eating nor growth take place.
-    \item $N_g(t-t_0)=x-1$, $N_w(t-t_0)=y$, and one grass block regrows.
-    \item $N_g(t-t_0)=x+1$, $N_w(t-t_0)=y$ and one woolly sheep eats grass.
-    \item $N_g(t-t_0)=x+1$, $N_w(t-t_0)=y-1$, and one woolless sheep eats grass.
-    \item Two or more growth and eating events occur.
-\end{itemize}
-
-For the two cases involving one block of grass being eaten, the probability will include a term pertaining to the number of sheep who have their wool. By analogy with equation \ref{n_w_dot}, the rate at which woolless sheep eat grass is $\frac{N-N_w}{N}\mu$, and the rate at which woolly sheep eat grass is $\frac{N_w}{N}\mu$. Following the same prodecure as with equation \ref{p_dot}:
+Following the same prodecure as with equation \ref{p_dot}:
 \begin{equation}
     \label{q_xy_dot}
     \begin{split}
@@ -322,13 +282,9 @@ The root cause of this deviation is the same as for the grass growth model. The 
 
 Since all terms here are positive, $q_{0,y}$ are monotonically increasing, and given enough time, the pasture will tend to evolve into one of these states and never leave.
 
-The biggest drawback of this model is its computational intensiveness. A model for a pasture with $A=500$ and $N=300$ would have $(500+1)(300+1)=150801$ simultaneous equations, and an $\mathbf{R}$ tensor with $150801^2=22740941601$ elements, which occupy 91 GB of memory if stored as 64-bit floats, making computation infeasable for all but top-shelf consumer hardware.
+The biggest drawback of this model is its computational intensiveness. A model for a pasture with $A=500$ and density 0.8 would have $(500+1)(400+1)=200901$ simultaneous equations, and an $\mathbf{R}$ tensor with $200901^2=40361211801$ elements, which would occupy 161 GB of memory if stored as 64-bit floats, making computation infeasable for all but top-shelf consumer hardware.
 
-\section{Conclusions} The logistic model, and the Kolmogorov equations, have proven useful for predicting the behavior of a pasture in \textit{Minecraft}. However, there are still a few unanswered questions.
-
-First, grass in \textit{Minecraft} can spread under fences. Pastures typically have some degree of immigration, causing $\lambda(0)>0$. The effect of immigration was ignored here, since it makes the deterministic model unweildy (see \cite{matis_kiffe} chapter 7). However, introducing immigration would have an important effect on the behavior of the pasture for large $N$, since $N_g=0$ is no longer an inescapeable state.
-
-Second, time in \textit{Minecraft} is discretized into increments of 0.05 seconds, while these models considered a continuous-time process. How would a discrete-time model differ from a continuous-time model?
+\section{Conclusions} The logistic model, and the Kolmogorov equations, have proven useful for predicting the behavior of a pasture in \textit{Minecraft}. Future work includes investigating more realistic relationships for grass growth, especially adding an "immigration" term to account for grass spreading into the pasture from outside, and assessing the effect of a continuous-time model for a discrete-time process.
 
 \begin{thebibliography}{1}
 
