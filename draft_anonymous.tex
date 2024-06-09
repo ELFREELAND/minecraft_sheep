@@ -13,7 +13,7 @@
 %comment or delete this to remove watermark
 %===============================
 %\usepackage[svgnames]{xcolor}
-%usepackage[
+%\usepackage[
 %    text=DRAFT,
 %    scale=5,
 %    color={[rgb]{1, 0.85, 0.85}}
@@ -47,12 +47,14 @@
 
 \title{Population Models of \textit{Minecraft} Sheep}
 
-\author{Evan Freeland\\               %%%% Leave ALL of these as is in your initial submission
-%%%% to allow for double blind reviewing.
-%%%% They should be filled in when you are submitting
-\scriptsize evanfreeland@yahoo.com}                      %%%% your final manuscript.
+\author{Author Name\\               %%%% Leave ALL of these as is in your initial submission
+\scriptsize affiliation line 1\\    %%%% to allow for double blind reviewing.
+affiliation line 2\\                %%%% They should be filled in when you are submitting
+email address}                      %%%% your final manuscript.
 
 \maketitle
+
+\textbf{This is a draft.}
 
 \section{Introduction}
 \textit{Minecraft} is an open-world sandbox video game\footnote{This investigation was conducted in \textit{Minecraft} Java edition version 1.19.4.}. The game takes place in a procedurally generated world made of cubic voxels, or \textit{blocks}. Among other activities, players can engage in agriculture, including the raising of sheep. 
@@ -131,7 +133,7 @@ The population asymptotically approaches $P$ as $t\rightarrow\infty$. In ecology
 
 The actual values of $k$ and $R$ were determined with in-game experiments. $R$ was measured by counting the number of grass blocks eaten by sheep. In 1 hour, 10 sheep ate 320 blocks of grass, which gives $R=0.00888\mathrm{\;s^{-1}}$.
 
-$k$ was measured by uniformly dispersing 100 grass blocks in a 900-block dirt patch and tracking the grass population over time. The grass growth was then fit to equation \ref{logistic_soln}. This fit gave $k=0.00772\mathrm{\;s^{-1}}$. More details about these experiments can be found on the author's Github\footnote{github.com/ELFREELAND}.
+$k$ was measured by uniformly dispersing 100 grass blocks in a 900-block dirt patch and tracking the grass population over time. The grass growth was then fit to equation \ref{logistic_soln}. This fit gave $k=0.00772\mathrm{\;s^{-1}}$. More details about these experiments can be found on the author's Github\footnote{Redacted for anonymity}.
 
 \begin{figure}
     \label{fig:grass_logistic_fit}
@@ -150,7 +152,7 @@ A naïve assumption is that the farmer has superhuman speed, and shears each she
 
 This is a simple parabolic relationship with a maximum value of $F_{fast}=\frac{Ak}{4}$ at $N=\frac{Ak}{2R}$.
 
-A more realistic assumption is that the farmer periodically shears all the sheep at once. Let $N_w(t)$ be the number of woolly sheep at time $T$. If the farmer shears the sheep with period $T$, the average rate at which they gather wool is:
+A more realistic assumption is that the farmer shears the sheep periodically and at regular intervals. Let $N_w(t)$ be the number of woolly sheep at time $T$. If the farmer shears the sheep with period $T$, the average rate at which they gather wool is:
 \begin{equation*}
     F_{slow}=\frac{N_w(T)}{T}
 \end{equation*}
