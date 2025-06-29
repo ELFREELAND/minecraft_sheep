@@ -1,7 +1,8 @@
 # minecraft_sheep
+This README describes experiments to determine the sheep eating and grass growth rate coefficients. Familiarity with Minecraft is assumed.
 
 ## Experimental determination of $R$ and $k$
-The user-maintained minecraft wiki says that sheep have a 1/1000 chance of attempting to eat on every other tick (a tick being 1/20 of a second). With ten chances per second at a probability of 1/1000, the $R$ value is 0.01. However, no reference is provided for this informatin, so we will be conducting an in-game experiment to determine R.
+The user-maintained minecraft wiki says that sheep have a 1/1000 chance of attempting to eat on every other tick (a tick being 1/20 of a second). With ten chances per second at a probability of 1/1000, the $R$ value is 0.01. However, no reference is provided for this information, so we will be conducting an in-game experiment to determine R.
 
 The grass mechanics are sufficiently complicated that it will also be easier for us to set up an experiment in-game to estimate $k$.
 
@@ -28,15 +29,15 @@ The experiment was set up as follows. A 30x30 flat plot of dirt, isolated from a
 
 One in every 9 blocks is grassy, for a ratio $\frac{N_g}{A}=\frac{1}{9}$.
 
-While the pattern was being setup, `gamerule randomtickspeed` was set to 0, ensuring grass did not spread. To begin the experiment, `randomtickspeed` was set to its default value of 3.
+While the pattern was being set up, `gamerule randomtickspeed` was set to 0, ensuring grass did not spread. To begin the experiment, `randomtickspeed` was set to its default value of 3.
 
-Grass population was tracked using the output of the `/fill` command. When `\fill` is executed, the command output will show how many blocks were changed. A redstone clock with a delay of 5 seconds was connected to two command blocks, containing the following commands:
+Grass population was tracked using the output of the `/fill` command. When `/fill` is executed, the command output will show how many blocks were changed. A redstone repeater clock with a delay of 5 seconds was connected to two command blocks, containing the following commands:
 
 `/fill -145 -61 96 -174 -61 67 red_wool replace minecraft:grass_block`
 
 `/fill -145 -61 96 -174 -61 67 grass_block replace minecraft:red_wool`
 
-When this clock is run on a loop, the command output will show the number of grass blocks in the pasture every 5 seconds.
+When this clock is run on a loop, the command output will show the number of grass blocks in the pasture every 5 seconds. After the experiment was started, grass population was recorded every 5 seconds until the entire area was grassy.
 
 ![image](readme_images/grass_redstone.png "The redstone circuit for counting grass blocks")
 
